@@ -1,0 +1,118 @@
+.weather-form {
+	width: 80%;
+	max-width: 600px;
+	margin: 0 auto;
+	padding: 20px 20px 20px 20px;
+	background-color: #f9f9f9;
+	border-radius: 8px;
+	box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+.form-title {
+	text-align: center;
+	margin-bottom: 20px;
+}
+
+.section-title {
+	margin-top: 20px;
+	font-size: 1.2rem;
+	font-weight: bold;
+	color: #333;
+}
+
+.form-group {
+	width: 96%;
+	margin-bottom: 15px;
+}
+
+.form-group label {
+	display: block;
+	font-size: 1rem;
+	margin-bottom: 5px;
+}
+
+.form-group input {
+	width: 100%;
+	padding: 10px;
+	font-size: 1rem;
+	border: 1px solid #ccc;
+	border-radius: 4px;
+}
+
+.submit-btn {
+	width: 100%;
+	padding: 12px;
+	font-size: 1rem;
+	color: white;
+	background-color: #4CAF50;
+	border: none;
+	border-radius: 4px;
+	cursor: pointer;
+}
+
+.submit-btn:hover {
+	background-color: #45a049;
+}
+
+.form-control.error {
+	border: 2px solid red;
+}
+
+.error-message {
+	color: red;
+	font-size: 12px;
+}
+
+.weather-form {
+	width: 70%;
+}
+
+/* Position the message fixed at the bottom-right of the screen */
+.message {
+	position: fixed;
+	bottom: 20px;
+	right: 20px;
+	width: auto;
+	padding: 10px 20px;
+	background-color: #dff0d8;
+	/* Green for success */
+	color: #3c763d;
+	border: 1px solid #d6e9c6;
+	border-radius: 5px;
+	font-size: 16px;
+	display: none;
+	/* Hide initially */
+	opacity: 0;
+	/* Set initial opacity to 0 for fade-in/fade-out effect */
+	transition: opacity 1s ease-in-out;
+	/* Transition for smooth fade effect */
+}
+
+.message.error {
+	background-color: #f2dede;
+	/* Red for error */
+	color: #a94442;
+	border-color: #ebccd1;
+}
+
+/* When the message is shown, it becomes visible */
+.message.show {
+	display: block;
+	opacity: 1;
+}
+
+/* The message will fade out when the 'hide' class is added */
+.message.hide {
+	opacity: 0;
+	display: block;
+	/* Ensure it's still displayed during the fade out */
+}
+
+.message-text {
+	padding: 10px;
+	background-color: #dff0d8;
+	/* Green for success */
+	color: #3c763d;
+	border: 1px solid #d6e9c6;
+	border-radius: 5px;
+}

@@ -1,0 +1,119 @@
+/* Общие стили для контейнера */
+.weather-container {
+	max-width: 900px;
+	margin: 0 auto;
+	padding: 20px;
+	font-family: 'Arial', sans-serif;
+	background-color: #f4f7fa;
+	border-radius: 8px;
+	box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+.weather-title {
+	font-size: 2rem;
+	color: #333;
+	margin-bottom: 20px;
+	text-align: center;
+}
+
+/* Список наблюдений */
+.weather-list {
+	list-style-type: none;
+	padding: 0;
+}
+
+.weather-item {
+	display: flex;
+	justify-content: space-between;
+	align-items: center;
+	background-color: #ffffff;
+	margin-bottom: 15px;
+	padding: 15px;
+	border-radius: 8px;
+	box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+	transition: transform 0.3s;
+}
+
+.weather-item:hover {
+	transform: translateY(-5px);
+}
+
+/* Информация о погоде */
+.weather-info {
+	display: flex;
+	justify-content: space-between;
+	/* Разделение даты и статуса */
+	width: 100%;
+	align-items: center;
+	/* Центрируем элементы по вертикали */
+}
+
+.weather-date {
+	color: #555;
+	font-size: 1.1rem;
+	text-align: left;
+	margin-right: 20px;
+	flex-shrink: 0;
+	/* Дата не будет сжиматься */
+}
+
+.weather-status {
+	font-size: 1.1rem;
+	font-weight: bold;
+	color: #333;
+	text-transform: capitalize;
+	text-align: center;
+	flex-grow: 1;
+	/* Статус будет занимать оставшееся пространство */
+	text-align: center;
+	/* Центрируем текст */
+	margin-left: -5px;
+	/* Сдвигаем статус влево на пару пикселей */
+}
+
+/* Контейнер для кнопки Details */
+.details-button-container {
+	display: flex;
+	justify-content: flex-end;
+	margin-left: 20px;
+	/* Выравнивание кнопки по правому краю */
+}
+
+.details-button {
+	background-color: #4caf50;
+	color: white;
+	padding: 10px 20px;
+	border-radius: 5px;
+	text-decoration: none;
+	font-weight: bold;
+	transition: background-color 0.3s;
+}
+
+.details-button:hover {
+	background-color: #45a049;
+}
+
+@media (max-width: 768px) {
+	.weather-title {
+		font-size: 1.6rem;
+	}
+
+	.weather-item {
+		flex-direction: column;
+		align-items: flex-start;
+	}
+
+	.weather-info {
+		flex-direction: column;
+		align-items: flex-start;
+	}
+
+	.weather-date {
+		margin-right: 0;
+		margin-bottom: 10px;
+	}
+
+	.details-button-container {
+		margin-top: 10px;
+	}
+}
