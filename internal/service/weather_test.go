@@ -117,12 +117,8 @@ func TestGetWeatherObservationWithoutError(t *testing.T) {
 					Humidity:      60.0,
 					Pressure:      1013.0,
 					WeatherStatus: "Clear",
-					Location: models.Location{
-						Latitude:  52.5200,
-						Longitude: 13.4050,
-						City:      "Berlin",
-						Country:   "Germany",
-					},
+					City:          "Berlin",
+					Country:       "Germany",
 				}, nil).Once()
 
 				return repo
@@ -134,12 +130,8 @@ func TestGetWeatherObservationWithoutError(t *testing.T) {
 				Humidity:      60.0,
 				Pressure:      1013.0,
 				WeatherStatus: "Clear",
-				Location: models.Location{
-					Latitude:  52.5200,
-					Longitude: 13.4050,
-					City:      "Berlin",
-					Country:   "Germany",
-				},
+				City:          "Berlin",
+				Country:       "Germany",
 			},
 		},
 	}
@@ -303,12 +295,8 @@ func TestDeleteWeatherObservationWithoutError(t *testing.T) {
 						Humidity:      65.0,
 						Pressure:      1015.0,
 						WeatherStatus: "Sunny",
-						Location: models.Location{
-							Latitude:  48.8566,
-							Longitude: 2.3522,
-							City:      "Paris",
-							Country:   "France",
-						},
+						City:          "Paris",
+						Country:       "France",
 					}, nil).
 					Once()
 
@@ -321,12 +309,8 @@ func TestDeleteWeatherObservationWithoutError(t *testing.T) {
 				Humidity:      65.0,
 				Pressure:      1015.0,
 				WeatherStatus: "Sunny",
-				Location: models.Location{
-					Latitude:  48.8566,
-					Longitude: 2.3522,
-					City:      "Paris",
-					Country:   "France",
-				},
+				City:          "Paris",
+				Country:       "France",
 			},
 		},
 	}
@@ -412,36 +396,24 @@ func TestListWeatherObservationsWithoutError(t *testing.T) {
 							Humidity:      60.0,
 							Pressure:      1013.0,
 							WeatherStatus: "Clear",
-							Location: models.Location{
-								Latitude:  52.5200,
-								Longitude: 13.4050,
-								City:      "Berlin",
-								Country:   "Germany",
-							},
+							City:          "Berlin",
+							Country:       "Germany",
 						},
 						{
 							Temperature:   30.0,
 							Humidity:      65.0,
 							Pressure:      1015.0,
 							WeatherStatus: "Sunny",
-							Location: models.Location{
-								Latitude:  48.8566,
-								Longitude: 2.3522,
-								City:      "Paris",
-								Country:   "France",
-							},
+							City:          "Paris",
+							Country:       "France",
 						},
 						{
 							Temperature:   28.0,
 							Humidity:      95.0,
 							Pressure:      1012.0,
 							WeatherStatus: "Rainy",
-							Location: models.Location{
-								Latitude:  1.3521,
-								Longitude: 103.8198,
-								City:      "Singapore",
-								Country:   "Singapore",
-							},
+							City:          "Singapore",
+							Country:       "Singapore",
 						},
 					}, nil).
 					Once()
@@ -455,36 +427,24 @@ func TestListWeatherObservationsWithoutError(t *testing.T) {
 					Humidity:      60.0,
 					Pressure:      1013.0,
 					WeatherStatus: "Clear",
-					Location: models.Location{
-						Latitude:  52.5200,
-						Longitude: 13.4050,
-						City:      "Berlin",
-						Country:   "Germany",
-					},
+					City:          "Berlin",
+					Country:       "Germany",
 				},
 				{
 					Temperature:   30.0,
 					Humidity:      65.0,
 					Pressure:      1015.0,
 					WeatherStatus: "Sunny",
-					Location: models.Location{
-						Latitude:  48.8566,
-						Longitude: 2.3522,
-						City:      "Paris",
-						Country:   "France",
-					},
+					City:          "Paris",
+					Country:       "France",
 				},
 				{
 					Temperature:   28.0,
 					Humidity:      95.0,
 					Pressure:      1012.0,
 					WeatherStatus: "Rainy",
-					Location: models.Location{
-						Latitude:  1.3521,
-						Longitude: 103.8198,
-						City:      "Singapore",
-						Country:   "Singapore",
-					},
+					City:          "Singapore",
+					Country:       "Singapore",
 				},
 			},
 		},

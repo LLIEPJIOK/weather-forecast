@@ -130,18 +130,14 @@ func TestGetWeatherObservationHandlerWithBuilder(t *testing.T) {
 				mockService.
 					On("GetWeatherObservation", mock.Anything, 1).
 					Return(models.WeatherObservation{
-						ID: 1,
-						Location: models.Location{
-							Latitude:  52.5200,
-							Longitude: 13.4050,
-							City:      "Berlin",
-							Country:   "Germany",
-						},
+						ID:            1,
+						City:          "Berlin",
+						Country:       "Germany",
 						Timestamp:     tm,
 						Temperature:   25.5,
 						Humidity:      80,
 						Pressure:      1013,
-						Wind:          models.Wind{Speed: 5.4, Direction: 270},
+						WindSpeed:     5.4,
 						WeatherStatus: "Clear",
 					}, nil).
 					Once()
@@ -151,20 +147,13 @@ func TestGetWeatherObservationHandlerWithBuilder(t *testing.T) {
 			expectedStatusCode: http.StatusOK,
 			expectedResponse: `{
                 "id": 1,
-                "location": {
-                    "latitude": 52.5200,
-                    "longitude": 13.4050,
-                    "city": "Berlin",
-                    "country": "Germany"
-                },
+								"city": "Berlin",
+								"country": "Germany",
                 "timestamp": "` + tm.Format(time.RFC3339Nano) + `",
                 "temperature": 25.5,
                 "humidity": 80,
                 "pressure": 1013,
-                "wind": {
-                    "speed": 5.4,
-                    "direction": 270
-                },
+								"wind_speed": 5.4,
                 "weather_status": "Clear"
             }`,
 		},
@@ -267,7 +256,7 @@ func TestUpdateWeatherObservationHandlerWithBuilder(t *testing.T) {
 				Temperature:   22.5,
 				Humidity:      70,
 				Pressure:      1012,
-				Wind:          models.Wind{Speed: 3.5, Direction: 90},
+				WindSpeed:     3.5,
 				WeatherStatus: "Cloudy",
 			},
 			repoBuilder: func(t *testing.T) weather.WeatherService {
@@ -312,7 +301,7 @@ func TestUpdateWeatherObservationHandlerWithBuilder(t *testing.T) {
 				Temperature:   22.5,
 				Humidity:      70,
 				Pressure:      1012,
-				Wind:          models.Wind{Speed: 3.5, Direction: 90},
+				WindSpeed:     3.5,
 				WeatherStatus: "Cloudy",
 			},
 			repoBuilder: func(t *testing.T) weather.WeatherService {
@@ -344,7 +333,7 @@ func TestUpdateWeatherObservationHandlerWithBuilder(t *testing.T) {
 				Temperature:   22.5,
 				Humidity:      70,
 				Pressure:      1012,
-				Wind:          models.Wind{Speed: 3.5, Direction: 90},
+				WindSpeed:     3.5,
 				WeatherStatus: "Cloudy",
 			},
 			repoBuilder: func(t *testing.T) weather.WeatherService {
@@ -392,7 +381,6 @@ func TestUpdateWeatherObservationHandlerWithBuilder(t *testing.T) {
 
 			e := echo.New()
 
-			// Для случая с невалидным JSON форматом можно вручную создать ошибку в теле запроса
 			var reqBody []byte
 			if tc.name == "Invalid JSON format" {
 				reqBody = []byte(
@@ -447,18 +435,14 @@ func TestDeleteWeatherObservationHandlerWithBuilder(t *testing.T) {
 				mockService.
 					On("DeleteWeatherObservation", mock.Anything, 1).
 					Return(models.WeatherObservation{
-						ID: 1,
-						Location: models.Location{
-							Latitude:  52.5200,
-							Longitude: 13.4050,
-							City:      "Berlin",
-							Country:   "Germany",
-						},
+						ID:            1,
+						City:          "Berlin",
+						Country:       "Germany",
 						Timestamp:     tm,
 						Temperature:   25.5,
 						Humidity:      80,
 						Pressure:      1013,
-						Wind:          models.Wind{Speed: 5.4, Direction: 270},
+						WindSpeed:     5.4,
 						WeatherStatus: "Clear",
 					}, nil).
 					Once()
@@ -468,20 +452,13 @@ func TestDeleteWeatherObservationHandlerWithBuilder(t *testing.T) {
 			expectedStatusCode: http.StatusOK,
 			expectedResponse: `{
 				"id": 1,
-				"location": {
-					"latitude": 52.5200,
-					"longitude": 13.4050,
-					"city": "Berlin",
-					"country": "Germany"
-				},
+				"city": "Berlin",
+				"country": "Germany",
 				"timestamp": "` + tm.Format(time.RFC3339Nano) + `",
 				"temperature": 25.5,
 				"humidity": 80,
 				"pressure": 1013,
-				"wind": {
-					"speed": 5.4,
-					"direction": 270
-				},
+				"wind_speed": 5.4,
 				"weather_status": "Clear"
 			}`,
 		},
@@ -587,33 +564,25 @@ func TestListWeatherObservationsHandlerWithBuilder(t *testing.T) {
 					On("ListWeatherObservations", mock.Anything).
 					Return([]models.WeatherObservation{
 						{
-							ID: 1,
-							Location: models.Location{
-								Latitude:  52.5200,
-								Longitude: 13.4050,
-								City:      "Berlin",
-								Country:   "Germany",
-							},
+							ID:            1,
+							City:          "Berlin",
+							Country:       "Germany",
 							Timestamp:     tm,
 							Temperature:   25.5,
 							Humidity:      80,
 							Pressure:      1013,
-							Wind:          models.Wind{Speed: 5.4, Direction: 270},
+							WindSpeed:     5.4,
 							WeatherStatus: "Clear",
 						},
 						{
-							ID: 2,
-							Location: models.Location{
-								Latitude:  48.8566,
-								Longitude: 2.3522,
-								City:      "Paris",
-								Country:   "France",
-							},
+							ID:            2,
+							City:          "Paris",
+							Country:       "France",
 							Timestamp:     tm.Add(-time.Hour * 24 * 365),
 							Temperature:   15.0,
 							Humidity:      75,
 							Pressure:      1012,
-							Wind:          models.Wind{Speed: 3.2, Direction: 90},
+							WindSpeed:     3.2,
 							WeatherStatus: "Cloudy",
 						},
 					}, nil).
@@ -625,38 +594,24 @@ func TestListWeatherObservationsHandlerWithBuilder(t *testing.T) {
 			expectedResponse: `[
 				{
 					"id": 1,
-					"location": {
-						"latitude": 52.5200,
-						"longitude": 13.4050,
-						"city": "Berlin",
-						"country": "Germany"
-					},
+					"city": "Berlin",
+					"country": "Germany",
 					"timestamp": "` + tm.Format(time.RFC3339Nano) + `",
 					"temperature": 25.5,
 					"humidity": 80,
 					"pressure": 1013,
-					"wind": {
-						"speed": 5.4,
-						"direction": 270
-					},
+					"wind_speed": 5.4,
 					"weather_status": "Clear"
 				},
 				{
 					"id": 2,
-					"location": {
-						"latitude": 48.8566,
-						"longitude": 2.3522,
-						"city": "Paris",
-						"country": "France"
-					},
+					"city": "Paris",
+					"country": "France",
 					"timestamp": "` + tm.Add(-time.Hour*24*365).Format(time.RFC3339Nano) + `",
 					"temperature": 15.0,
 					"humidity": 75,
 					"pressure": 1012,
-					"wind": {
-						"speed": 3.2,
-						"direction": 90
-					},
+					"wind_speed": 3.2,
 					"weather_status": "Cloudy"
 				}
 			]`,

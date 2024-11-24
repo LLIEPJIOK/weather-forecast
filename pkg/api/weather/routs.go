@@ -11,6 +11,7 @@ import (
 	"github.com/LLIEPJIOK/weather-forecast/internal/repository"
 
 	"github.com/labstack/echo/v4"
+	"github.com/labstack/echo/v4/middleware"
 )
 
 type EchoMessage struct {
@@ -40,6 +41,11 @@ func RegisterWeatherObservationRoutes(
 	server.PUT("/weather/:id", UpdateWeatherObservationHandler(weatherService))
 	server.DELETE("/weather/:id", DeleteWeatherObservationHandler(weatherService))
 	server.GET("/weathers", ListWeatherObservationsHandler(weatherService))
+
+	server.Use(middleware.CORSWithConfig(middleware.CORSConfig{
+		AllowOrigins: []string{"http://localhost:3000"}, // Разрешаем запросы с вашего фронтенда
+		AllowMethods: []string{echo.GET, echo.POST, echo.PUT, echo.DELETE},
+	}))
 }
 
 func AddWeatherObservationHandler(weatherService WeatherService) echo.HandlerFunc {
