@@ -8,21 +8,57 @@ import (
 	"github.com/LLIEPJIOK/weather-forecast/backend/internal/repository"
 
 	"github.com/stretchr/testify/assert"
+	mock "github.com/stretchr/testify/mock"
 	"github.com/stretchr/testify/require"
 )
+
+type databaseBuilder func(t *testing.T) repository.Database
 
 func TestAddWeatherObservationWithoutError(t *testing.T) {
 	t.Parallel()
 
 	tt := []struct {
-		name string
-		ctx  context.Context
-		ob   models.WeatherObservation
+		name      string
+		ctx       context.Context
+		dbBuilder databaseBuilder
+		ob        *models.Weather
 	}{
 		{
 			name: "Add first weather observation with positive values",
 			ctx:  context.Background(),
-			ob: models.WeatherObservation{
+			dbBuilder: func(t *testing.T) repository.Database {
+				t.Helper()
+
+				mockService := NewMockDatabase(t)
+				mockService.
+					On("AddWeather", mock.Anything, mock.Anything).
+					Return(&models.Weather{
+						ID:            1,
+						Temperature:   25.0,
+						Humidity:      60.0,
+						Pressure:      1013.0,
+						WeatherStatus: "Clear",
+						City:          "Berlin",
+						Country:       "Germany",
+					}, nil).
+					Once()
+				mockService.
+					On("GetWeather", mock.Anything, 1).
+					Return(&models.Weather{
+						ID:            1,
+						Temperature:   25.0,
+						Humidity:      60.0,
+						Pressure:      1013.0,
+						WeatherStatus: "Clear",
+						City:          "Berlin",
+						Country:       "Germany",
+					}, nil).
+					Once()
+
+				return mockService
+			},
+			ob: &models.Weather{
+				ID:            1,
 				Temperature:   25.0,
 				Humidity:      60.0,
 				Pressure:      1013.0,
@@ -34,7 +70,38 @@ func TestAddWeatherObservationWithoutError(t *testing.T) {
 		{
 			name: "Add second weather observation with different location",
 			ctx:  context.Background(),
-			ob: models.WeatherObservation{
+			dbBuilder: func(t *testing.T) repository.Database {
+				t.Helper()
+
+				mockService := NewMockDatabase(t)
+				mockService.
+					On("AddWeather", mock.Anything, mock.Anything).
+					Return(&models.Weather{
+						ID:            1,
+						Temperature:   30.0,
+						Humidity:      65.0,
+						Pressure:      1015.0,
+						WeatherStatus: "Sunny",
+						City:          "Paris",
+						Country:       "France",
+					}, nil).
+					Once()
+				mockService.
+					On("GetWeather", mock.Anything, 1).
+					Return(&models.Weather{
+						ID:            1,
+						Temperature:   30.0,
+						Humidity:      65.0,
+						Pressure:      1015.0,
+						WeatherStatus: "Sunny",
+						City:          "Paris",
+						Country:       "France",
+					}, nil).
+					Once()
+
+				return mockService
+			},
+			ob: &models.Weather{
 				Temperature:   30.0,
 				Humidity:      65.0,
 				Pressure:      1015.0,
@@ -49,14 +116,15 @@ func TestAddWeatherObservationWithoutError(t *testing.T) {
 		t.Run(tc.name, func(t *testing.T) {
 			t.Parallel()
 
-			repo := repository.NewWeatherRepository()
+			db := tc.dbBuilder(t)
+			repo := repository.NewWeatherRepository(db)
 
-			id, err := repo.AddWeatherObservation(tc.ctx, tc.ob)
+			id, err := repo.AddWeather(tc.ctx, tc.ob)
 			require.NoError(t, err)
 
 			tc.ob.ID = id
 
-			ob, err := repo.GetWeatherObservation(tc.ctx, id)
+			ob, err := repo.GetWeather(tc.ctx, id)
 			require.NoError(t, err)
 
 			assert.Equal(t, tc.ob, ob)
@@ -68,14 +136,26 @@ func TestGetWeatherObservationWithError(t *testing.T) {
 	t.Parallel()
 
 	tt := []struct {
-		name string
-		ctx  context.Context
-		id   int
+		name      string
+		ctx       context.Context
+		dbBuilder databaseBuilder
+		id        int
 	}{
 		{
-			name: "Update third weather observation with extreme temperature",
+			name: "Attempt to get non-existent weather observation",
 			ctx:  context.Background(),
 			id:   1234,
+			dbBuilder: func(t *testing.T) repository.Database {
+				t.Helper()
+
+				mockService := NewMockDatabase(t)
+				mockService.
+					On("GetWeather", mock.Anything, 1234).
+					Return(nil, repository.NewErrNotFound(1234)).
+					Once()
+
+				return mockService
+			},
 		},
 	}
 
@@ -83,9 +163,10 @@ func TestGetWeatherObservationWithError(t *testing.T) {
 		t.Run(tc.name, func(t *testing.T) {
 			t.Parallel()
 
-			repo := repository.NewWeatherRepository()
+			db := tc.dbBuilder(t)
+			repo := repository.NewWeatherRepository(db)
 
-			_, err := repo.GetWeatherObservation(tc.ctx, tc.id)
+			_, err := repo.GetWeather(tc.ctx, tc.id)
 			require.ErrorAs(t, err, &repository.ErrNotFound{})
 		})
 	}
@@ -95,15 +176,67 @@ func TestUpdateWeatherObservationWithoutError(t *testing.T) {
 	t.Parallel()
 
 	tt := []struct {
-		name string
-		ctx  context.Context
-		ob   models.WeatherObservation
-		upd  models.WeatherObservation
+		name      string
+		ctx       context.Context
+		dbBuilder databaseBuilder
+		ob        *models.Weather
+		upd       *models.Weather
 	}{
 		{
 			name: "Update third weather observation with extreme temperature",
 			ctx:  context.Background(),
-			ob: models.WeatherObservation{
+			dbBuilder: func(t *testing.T) repository.Database {
+				t.Helper()
+
+				mockService := NewMockDatabase(t)
+				mockService.
+					On("AddWeather", mock.Anything, mock.Anything).
+					Return(&models.Weather{
+						ID:            1,
+						Temperature:   -10.0,
+						Humidity:      60.0,
+						Pressure:      1025.0,
+						WeatherStatus: "Blizzard",
+						City:          "Helsinki",
+						Country:       "Finland",
+					}, nil).
+					Once()
+				mockService.
+					On("UpdateWeather", mock.Anything, &models.Weather{
+						ID:            1,
+						Temperature:   -10.0,
+						Humidity:      60.0,
+						Pressure:      1025.0,
+						WeatherStatus: "Blizzard",
+						City:          "Helsinki",
+						Country:       "Finland",
+					}).
+					Return(&models.Weather{
+						ID:            1,
+						Temperature:   -10.0,
+						Humidity:      60.0,
+						Pressure:      1025.0,
+						WeatherStatus: "Blizzard",
+						City:          "Helsinki",
+						Country:       "Finland",
+					}, nil).
+					Once()
+				mockService.
+					On("GetWeather", mock.Anything, 1).
+					Return(&models.Weather{
+						ID:            1,
+						Temperature:   -10.0,
+						Humidity:      60.0,
+						Pressure:      1025.0,
+						WeatherStatus: "Blizzard",
+						City:          "Helsinki",
+						Country:       "Finland",
+					}, nil).
+					Once()
+
+				return mockService
+			},
+			ob: &models.Weather{
 				Temperature:   -5.0,
 				Humidity:      55.0,
 				Pressure:      1020.0,
@@ -111,7 +244,7 @@ func TestUpdateWeatherObservationWithoutError(t *testing.T) {
 				City:          "Helsinki",
 				Country:       "Finland",
 			},
-			upd: models.WeatherObservation{
+			upd: &models.Weather{
 				Temperature:   -10.0,
 				Humidity:      60.0,
 				Pressure:      1025.0,
@@ -123,7 +256,58 @@ func TestUpdateWeatherObservationWithoutError(t *testing.T) {
 		{
 			name: "Update weather observation with new extreme humidity",
 			ctx:  context.Background(),
-			ob: models.WeatherObservation{
+			dbBuilder: func(t *testing.T) repository.Database {
+				t.Helper()
+
+				mockService := NewMockDatabase(t)
+				mockService.
+					On("AddWeather", mock.Anything, mock.Anything).
+					Return(&models.Weather{
+						ID:            1,
+						Temperature:   30.0,
+						Humidity:      100.0,
+						Pressure:      1015.0,
+						WeatherStatus: "Torrential Rain",
+						City:          "Singapore",
+						Country:       "Singapore",
+					}, nil).
+					Once()
+				mockService.
+					On("UpdateWeather", mock.Anything, &models.Weather{
+						ID:            1,
+						Temperature:   30.0,
+						Humidity:      100.0,
+						Pressure:      1015.0,
+						WeatherStatus: "Torrential Rain",
+						City:          "Singapore",
+						Country:       "Singapore",
+					}).
+					Return(&models.Weather{
+						ID:            1,
+						Temperature:   30.0,
+						Humidity:      100.0,
+						Pressure:      1015.0,
+						WeatherStatus: "Torrential Rain",
+						City:          "Singapore",
+						Country:       "Singapore",
+					}, nil).
+					Once()
+				mockService.
+					On("GetWeather", mock.Anything, 1).
+					Return(&models.Weather{
+						ID:            1,
+						Temperature:   30.0,
+						Humidity:      100.0,
+						Pressure:      1015.0,
+						WeatherStatus: "Torrential Rain",
+						City:          "Singapore",
+						Country:       "Singapore",
+					}, nil).
+					Once()
+
+				return mockService
+			},
+			ob: &models.Weather{
 				Temperature:   28.0,
 				Humidity:      95.0,
 				Pressure:      1012.0,
@@ -131,7 +315,7 @@ func TestUpdateWeatherObservationWithoutError(t *testing.T) {
 				City:          "Singapore",
 				Country:       "Singapore",
 			},
-			upd: models.WeatherObservation{
+			upd: &models.Weather{
 				Temperature:   30.0,
 				Humidity:      100.0,
 				Pressure:      1015.0,
@@ -146,16 +330,17 @@ func TestUpdateWeatherObservationWithoutError(t *testing.T) {
 		t.Run(tc.name, func(t *testing.T) {
 			t.Parallel()
 
-			repo := repository.NewWeatherRepository()
+			db := tc.dbBuilder(t)
+			repo := repository.NewWeatherRepository(db)
 
-			id, err := repo.AddWeatherObservation(tc.ctx, tc.ob)
+			id, err := repo.AddWeather(tc.ctx, tc.ob)
 			require.NoError(t, err)
 
 			tc.upd.ID = id
-			err = repo.UpdateWeatherObservation(tc.ctx, tc.upd)
+			err = repo.UpdateWeather(tc.ctx, tc.upd)
 			require.NoError(t, err)
 
-			updatedOb, err := repo.GetWeatherObservation(tc.ctx, id)
+			updatedOb, err := repo.GetWeather(tc.ctx, id)
 			require.NoError(t, err)
 
 			assert.Equal(t, tc.upd, updatedOb)
@@ -167,14 +352,26 @@ func TestUpdateWeatherObservationWithError(t *testing.T) {
 	t.Parallel()
 
 	tt := []struct {
-		name string
-		ctx  context.Context
-		id   int
+		name      string
+		ctx       context.Context
+		dbBuilder databaseBuilder
+		id        int
 	}{
 		{
-			name: "Update third weather observation with extreme temperature",
+			name: "Update non-existing weather observation",
 			ctx:  context.Background(),
 			id:   10,
+			dbBuilder: func(t *testing.T) repository.Database {
+				t.Helper()
+
+				mockService := NewMockDatabase(t)
+				mockService.
+					On("UpdateWeather", mock.Anything, &models.Weather{ID: 10}).
+					Return(&models.Weather{}, repository.ErrNotFound{}).
+					Once()
+
+				return mockService
+			},
 		},
 	}
 
@@ -182,9 +379,10 @@ func TestUpdateWeatherObservationWithError(t *testing.T) {
 		t.Run(tc.name, func(t *testing.T) {
 			t.Parallel()
 
-			repo := repository.NewWeatherRepository()
+			db := tc.dbBuilder(t)
+			repo := repository.NewWeatherRepository(db)
 
-			err := repo.UpdateWeatherObservation(tc.ctx, models.WeatherObservation{ID: tc.id})
+			err := repo.UpdateWeather(tc.ctx, &models.Weather{ID: tc.id})
 			require.ErrorAs(t, err, &repository.ErrNotFound{})
 		})
 	}
@@ -194,14 +392,50 @@ func TestDeleteWeatherObservationWithoutError(t *testing.T) {
 	t.Parallel()
 
 	tt := []struct {
-		name string
-		ctx  context.Context
-		ob   models.WeatherObservation
+		name      string
+		ctx       context.Context
+		dbBuilder databaseBuilder
+		ob        *models.Weather
 	}{
 		{
 			name: "Delete third weather observation with low temperature",
 			ctx:  context.Background(),
-			ob: models.WeatherObservation{
+			dbBuilder: func(t *testing.T) repository.Database {
+				t.Helper()
+
+				mockService := NewMockDatabase(t)
+				mockService.
+					On("AddWeather", mock.Anything, mock.Anything).
+					Return(&models.Weather{
+						ID:            1,
+						Temperature:   -5.0,
+						Humidity:      55.0,
+						Pressure:      1020.0,
+						WeatherStatus: "Snowy",
+						City:          "Helsinki",
+						Country:       "Finland",
+					}, nil).
+					Once()
+				mockService.
+					On("DeleteWeather", mock.Anything, 1).
+					Return(&models.Weather{
+						ID:            1,
+						Temperature:   -5.0,
+						Humidity:      55.0,
+						Pressure:      1020.0,
+						WeatherStatus: "Snowy",
+						City:          "Helsinki",
+						Country:       "Finland",
+					}, nil).
+					Once()
+				mockService.
+					On("GetWeather", mock.Anything, 1).
+					Return(nil, repository.ErrNotFound{}).
+					Once()
+
+				return mockService
+			},
+			ob: &models.Weather{
 				Temperature:   -5.0,
 				Humidity:      55.0,
 				Pressure:      1020.0,
@@ -213,7 +447,42 @@ func TestDeleteWeatherObservationWithoutError(t *testing.T) {
 		{
 			name: "Delete weather observation with extreme humidity",
 			ctx:  context.Background(),
-			ob: models.WeatherObservation{
+			dbBuilder: func(t *testing.T) repository.Database {
+				t.Helper()
+
+				mockService := NewMockDatabase(t)
+				mockService.
+					On("AddWeather", mock.Anything, mock.Anything).
+					Return(&models.Weather{
+						ID:            2,
+						Temperature:   28.0,
+						Humidity:      95.0,
+						Pressure:      1012.0,
+						WeatherStatus: "Rainy",
+						City:          "Singapore",
+						Country:       "Singapore",
+					}, nil).
+					Once()
+				mockService.
+					On("DeleteWeather", mock.Anything, 2).
+					Return(&models.Weather{
+						ID:            2,
+						Temperature:   28.0,
+						Humidity:      95.0,
+						Pressure:      1012.0,
+						WeatherStatus: "Rainy",
+						City:          "Singapore",
+						Country:       "Singapore",
+					}, nil).
+					Once()
+				mockService.
+					On("GetWeather", mock.Anything, 2).
+					Return(nil, repository.ErrNotFound{}).
+					Once()
+
+				return mockService
+			},
+			ob: &models.Weather{
 				Temperature:   28.0,
 				Humidity:      95.0,
 				Pressure:      1012.0,
@@ -228,19 +497,20 @@ func TestDeleteWeatherObservationWithoutError(t *testing.T) {
 		t.Run(tc.name, func(t *testing.T) {
 			t.Parallel()
 
-			repo := repository.NewWeatherRepository()
+			db := tc.dbBuilder(t)
+			repo := repository.NewWeatherRepository(db)
 
-			id, err := repo.AddWeatherObservation(tc.ctx, tc.ob)
+			id, err := repo.AddWeather(tc.ctx, tc.ob)
 			require.NoError(t, err)
 
 			tc.ob.ID = id
 
-			ob, err := repo.DeleteWeatherObservation(tc.ctx, id)
+			ob, err := repo.DeleteWeather(tc.ctx, id)
 			require.NoError(t, err)
 			assert.Equal(t, tc.ob, ob)
 
-			_, err = repo.GetWeatherObservation(tc.ctx, id)
-			assert.Error(t, err)
+			_, err = repo.GetWeather(tc.ctx, id)
+			assert.ErrorAs(t, err, &repository.ErrNotFound{})
 		})
 	}
 }
@@ -249,14 +519,26 @@ func TestDeleteWeatherObservationWithError(t *testing.T) {
 	t.Parallel()
 
 	tt := []struct {
-		name string
-		ctx  context.Context
-		id   int
+		name      string
+		ctx       context.Context
+		dbBuilder databaseBuilder
+		id        int
 	}{
 		{
 			name: "Delete non-existent weather observation",
 			ctx:  context.Background(),
 			id:   1,
+			dbBuilder: func(t *testing.T) repository.Database {
+				t.Helper()
+
+				mockService := NewMockDatabase(t)
+				mockService.
+					On("DeleteWeather", mock.Anything, 1).
+					Return(nil, repository.ErrNotFound{}).
+					Once()
+
+				return mockService
+			},
 		},
 	}
 
@@ -264,9 +546,10 @@ func TestDeleteWeatherObservationWithError(t *testing.T) {
 		t.Run(tc.name, func(t *testing.T) {
 			t.Parallel()
 
-			repo := repository.NewWeatherRepository()
+			db := tc.dbBuilder(t)
+			repo := repository.NewWeatherRepository(db)
 
-			_, err := repo.DeleteWeatherObservation(tc.ctx, tc.id)
+			_, err := repo.DeleteWeather(tc.ctx, tc.id)
 			require.ErrorAs(t, err, &repository.ErrNotFound{})
 		})
 	}
@@ -277,16 +560,50 @@ func TestListWeatherObservationsWithoutError(t *testing.T) {
 
 	tt := []struct {
 		name         string
-		observations []models.WeatherObservation
+		dbBuilder    databaseBuilder
+		observations []*models.Weather
 	}{
 		{
-			name:         "No weather observations",
-			observations: nil,
+			name: "No weather observations",
+			dbBuilder: func(t *testing.T) repository.Database {
+				t.Helper()
+
+				mockService := NewMockDatabase(t)
+				mockService.
+					On("ListWeathers", mock.Anything).
+					Return([]*models.Weather{}, nil).
+					Once()
+
+				return mockService
+			},
+			observations: []*models.Weather{},
 		},
 		{
 			name: "One weather observation",
-			observations: []models.WeatherObservation{
+			dbBuilder: func(t *testing.T) repository.Database {
+				t.Helper()
+
+				mockService := NewMockDatabase(t)
+				mockService.
+					On("ListWeathers", mock.Anything).
+					Return([]*models.Weather{
+						{
+							ID:            1,
+							Temperature:   25.0,
+							Humidity:      60.0,
+							Pressure:      1013.0,
+							WeatherStatus: "Clear",
+							City:          "Berlin",
+							Country:       "Germany",
+						},
+					}, nil).
+					Once()
+
+				return mockService
+			},
+			observations: []*models.Weather{
 				{
+					ID:            1,
 					Temperature:   25.0,
 					Humidity:      60.0,
 					Pressure:      1013.0,
@@ -298,8 +615,48 @@ func TestListWeatherObservationsWithoutError(t *testing.T) {
 		},
 		{
 			name: "Multiple weather observations",
-			observations: []models.WeatherObservation{
+			dbBuilder: func(t *testing.T) repository.Database {
+				t.Helper()
+
+				mockService := NewMockDatabase(t)
+				mockService.
+					On("ListWeathers", mock.Anything).
+					Return([]*models.Weather{
+						{
+							ID:            1,
+							Temperature:   25.0,
+							Humidity:      60.0,
+							Pressure:      1013.0,
+							WeatherStatus: "Clear",
+							City:          "Berlin",
+							Country:       "Germany",
+						},
+						{
+							ID:            2,
+							Temperature:   30.0,
+							Humidity:      65.0,
+							Pressure:      1015.0,
+							WeatherStatus: "Sunny",
+							City:          "Paris",
+							Country:       "France",
+						},
+						{
+							ID:            3,
+							Temperature:   28.0,
+							Humidity:      95.0,
+							Pressure:      1012.0,
+							WeatherStatus: "Rainy",
+							City:          "Singapore",
+							Country:       "Singapore",
+						},
+					}, nil).
+					Once()
+
+				return mockService
+			},
+			observations: []*models.Weather{
 				{
+					ID:            1,
 					Temperature:   25.0,
 					Humidity:      60.0,
 					Pressure:      1013.0,
@@ -308,6 +665,7 @@ func TestListWeatherObservationsWithoutError(t *testing.T) {
 					Country:       "Germany",
 				},
 				{
+					ID:            2,
 					Temperature:   30.0,
 					Humidity:      65.0,
 					Pressure:      1015.0,
@@ -316,6 +674,7 @@ func TestListWeatherObservationsWithoutError(t *testing.T) {
 					Country:       "France",
 				},
 				{
+					ID:            3,
 					Temperature:   28.0,
 					Humidity:      95.0,
 					Pressure:      1012.0,
@@ -331,16 +690,10 @@ func TestListWeatherObservationsWithoutError(t *testing.T) {
 		t.Run(tc.name, func(t *testing.T) {
 			t.Parallel()
 
-			repo := repository.NewWeatherRepository()
+			db := tc.dbBuilder(t)
+			repo := repository.NewWeatherRepository(db)
 
-			for i, ob := range tc.observations {
-				id, err := repo.AddWeatherObservation(context.Background(), ob)
-				require.NoError(t, err)
-
-				tc.observations[i].ID = id
-			}
-
-			observations, err := repo.ListWeatherObservations(context.Background())
+			observations, err := repo.ListWeathers(context.Background())
 			require.NoError(t, err)
 			assert.Equal(t, tc.observations, observations)
 		})

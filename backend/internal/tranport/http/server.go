@@ -11,11 +11,11 @@ import (
 )
 
 type WeatherService interface {
-	AddWeatherObservation(ctx context.Context, ob models.WeatherObservation) (int, error)
-	GetWeatherObservation(ctx context.Context, id int) (models.WeatherObservation, error)
-	UpdateWeatherObservation(ctx context.Context, ob models.WeatherObservation) error
-	DeleteWeatherObservation(ctx context.Context, id int) (models.WeatherObservation, error)
-	ListWeatherObservations(ctx context.Context) ([]models.WeatherObservation, error)
+	AddWeather(ctx context.Context, ob *models.Weather) (int, error)
+	GetWeather(ctx context.Context, id int) (*models.Weather, error)
+	UpdateWeather(ctx context.Context, ob *models.Weather) error
+	DeleteWeather(ctx context.Context, id int) (*models.Weather, error)
+	ListWeathers(ctx context.Context) ([]*models.Weather, error)
 }
 
 type Server struct {
@@ -25,7 +25,7 @@ type Server struct {
 
 func New(ctx context.Context, restPort int, weatherService WeatherService) *Server {
 	httpSever := echo.New()
-	weather.RegisterWeatherObservationRoutes(ctx, httpSever, weatherService)
+	weather.RegisterWeatherRoutes(ctx, httpSever, weatherService)
 
 	return &Server{
 		restServer:  httpSever,

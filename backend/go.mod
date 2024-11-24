@@ -4,7 +4,9 @@ go 1.23.2
 
 require (
 	github.com/ilyakaznacheev/cleanenv v1.5.0
+	github.com/jmoiron/sqlx v1.4.0
 	github.com/labstack/echo/v4 v4.12.0
+	github.com/lib/pq v1.10.9
 	github.com/stretchr/testify v1.9.0
 )
 

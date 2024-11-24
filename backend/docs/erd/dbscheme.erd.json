@@ -1,0 +1,410 @@
+{
+  "$schema": "https://raw.githubusercontent.com/dineug/erd-editor/main/json-schema/schema.json",
+  "version": "3.0.0",
+  "settings": {
+    "width": 2000,
+    "height": 2000,
+    "scrollTop": -100,
+    "scrollLeft": -191.6667,
+    "zoomLevel": 0.8,
+    "show": 511,
+    "database": 16,
+    "databaseName": "torrentdb",
+    "canvasType": "@dineug/erd-editor/builtin-schema-sql",
+    "language": 1,
+    "tableNameCase": 4,
+    "columnNameCase": 2,
+    "bracketType": 1,
+    "relationshipDataTypeSync": true,
+    "relationshipOptimization": false,
+    "columnOrder": [
+      1,
+      2,
+      4,
+      8,
+      16,
+      32,
+      64
+    ],
+    "maxWidthComment": -1,
+    "ignoreSaveSettings": 0
+  },
+  "doc": {
+    "tableIds": [
+      "2ddaf9f7-85d3-4453-8470-a934135898c7"
+    ],
+    "relationshipIds": [],
+    "indexIds": [],
+    "memoIds": []
+  },
+  "collections": {
+    "tableEntities": {
+      "2ddaf9f7-85d3-4453-8470-a934135898c7": {
+        "id": "2ddaf9f7-85d3-4453-8470-a934135898c7",
+        "name": "weather",
+        "comment": "",
+        "columnIds": [
+          "243615c4-5131-4068-93f4-e788e45badae",
+          "S8QwVoUApfpaQ_Sob5EU2",
+          "6c4ba7c9-75b9-42d6-9293-394bae157ad9",
+          "ed898b28-9451-47ac-9eea-26f69ebe9a92",
+          "f6DqzqMUyCHtG3GP8SfJT",
+          "aee4378c-4c9b-4760-874d-8ae0721cf5d4",
+          "9265efe0-909f-4c5d-b58f-55f317e82fe0",
+          "f057ff0a-4855-4917-8e94-3d4ed0f9f73e",
+          "7b3d329b-cc0b-4049-bc66-823020067de7"
+        ],
+        "seqColumnIds": [
+          "243615c4-5131-4068-93f4-e788e45badae",
+          "S8QwVoUApfpaQ_Sob5EU2",
+          "6c4ba7c9-75b9-42d6-9293-394bae157ad9",
+          "ed898b28-9451-47ac-9eea-26f69ebe9a92",
+          "f6DqzqMUyCHtG3GP8SfJT",
+          "aee4378c-4c9b-4760-874d-8ae0721cf5d4",
+          "9265efe0-909f-4c5d-b58f-55f317e82fe0",
+          "f057ff0a-4855-4917-8e94-3d4ed0f9f73e",
+          "7b3d329b-cc0b-4049-bc66-823020067de7",
+          "k9OvcBvPKl1NGOOmV4_Vy"
+        ],
+        "ui": {
+          "x": 15.4926,
+          "y": 14.8512,
+          "zIndex": 3,
+          "widthName": 60,
+          "widthComment": 60,
+          "color": "#1A7916"
+        },
+        "meta": {
+          "updateAt": 1732448412946,
+          "createAt": 1722361498104
+        }
+      }
+    },
+    "tableColumnEntities": {
+      "243615c4-5131-4068-93f4-e788e45badae": {
+        "id": "243615c4-5131-4068-93f4-e788e45badae",
+        "tableId": "2ddaf9f7-85d3-4453-8470-a934135898c7",
+        "name": "id",
+        "comment": "",
+        "dataType": "BIGINT",
+        "default": "",
+        "options": 11,
+        "ui": {
+          "keys": 1,
+          "widthName": 60,
+          "widthComment": 60,
+          "widthDataType": 60,
+          "widthDefault": 60
+        },
+        "meta": {
+          "updateAt": 1722931902730,
+          "createAt": 1722361498104
+        }
+      },
+      "6c4ba7c9-75b9-42d6-9293-394bae157ad9": {
+        "id": "6c4ba7c9-75b9-42d6-9293-394bae157ad9",
+        "tableId": "2ddaf9f7-85d3-4453-8470-a934135898c7",
+        "name": "city",
+        "comment": "",
+        "dataType": "TEXT",
+        "default": "",
+        "options": 8,
+        "ui": {
+          "keys": 0,
+          "widthName": 60,
+          "widthComment": 60,
+          "widthDataType": 60,
+          "widthDefault": 60
+        },
+        "meta": {
+          "updateAt": 1732448192392,
+          "createAt": 1722361498104
+        }
+      },
+      "ed898b28-9451-47ac-9eea-26f69ebe9a92": {
+        "id": "ed898b28-9451-47ac-9eea-26f69ebe9a92",
+        "tableId": "2ddaf9f7-85d3-4453-8470-a934135898c7",
+        "name": "country",
+        "comment": "",
+        "dataType": "TEXT",
+        "default": "",
+        "options": 8,
+        "ui": {
+          "keys": 0,
+          "widthName": 60,
+          "widthComment": 60,
+          "widthDataType": 60,
+          "widthDefault": 60
+        },
+        "meta": {
+          "updateAt": 1732448203817,
+          "createAt": 1722361498104
+        }
+      },
+      "aee4378c-4c9b-4760-874d-8ae0721cf5d4": {
+        "id": "aee4378c-4c9b-4760-874d-8ae0721cf5d4",
+        "tableId": "2ddaf9f7-85d3-4453-8470-a934135898c7",
+        "name": "humidity",
+        "comment": "",
+        "dataType": "double precision",
+        "default": "",
+        "options": 8,
+        "ui": {
+          "keys": 0,
+          "widthName": 60,
+          "widthComment": 60,
+          "widthDataType": 90,
+          "widthDefault": 60
+        },
+        "meta": {
+          "updateAt": 1732452346995,
+          "createAt": 1722361498104
+        }
+      },
+      "9265efe0-909f-4c5d-b58f-55f317e82fe0": {
+        "id": "9265efe0-909f-4c5d-b58f-55f317e82fe0",
+        "tableId": "2ddaf9f7-85d3-4453-8470-a934135898c7",
+        "name": "pressure",
+        "comment": "",
+        "dataType": "double precision",
+        "default": "",
+        "options": 8,
+        "ui": {
+          "keys": 0,
+          "widthName": 60,
+          "widthComment": 60,
+          "widthDataType": 90,
+          "widthDefault": 60
+        },
+        "meta": {
+          "updateAt": 1732452351751,
+          "createAt": 1722361498104
+        }
+      },
+      "f057ff0a-4855-4917-8e94-3d4ed0f9f73e": {
+        "id": "f057ff0a-4855-4917-8e94-3d4ed0f9f73e",
+        "tableId": "2ddaf9f7-85d3-4453-8470-a934135898c7",
+        "name": "wind_speed",
+        "comment": "",
+        "dataType": "double precision",
+        "default": "",
+        "options": 8,
+        "ui": {
+          "keys": 0,
+          "widthName": 64,
+          "widthComment": 60,
+          "widthDataType": 90,
+          "widthDefault": 60
+        },
+        "meta": {
+          "updateAt": 1732452350816,
+          "createAt": 1722361498105
+        }
+      },
+      "7b3d329b-cc0b-4049-bc66-823020067de7": {
+        "id": "7b3d329b-cc0b-4049-bc66-823020067de7",
+        "tableId": "2ddaf9f7-85d3-4453-8470-a934135898c7",
+        "name": "weather_status",
+        "comment": "",
+        "dataType": "TEXT",
+        "default": "",
+        "options": 8,
+        "ui": {
+          "keys": 0,
+          "widthName": 81,
+          "widthComment": 60,
+          "widthDataType": 60,
+          "widthDefault": 60
+        },
+        "meta": {
+          "updateAt": 1732448281152,
+          "createAt": 1722361498105
+        }
+      },
+      "S8QwVoUApfpaQ_Sob5EU2": {
+        "id": "S8QwVoUApfpaQ_Sob5EU2",
+        "tableId": "2ddaf9f7-85d3-4453-8470-a934135898c7",
+        "name": "timestamp",
+        "comment": "",
+        "dataType": "timestamp",
+        "default": "",
+        "options": 8,
+        "ui": {
+          "keys": 0,
+          "widthName": 60,
+          "widthComment": 60,
+          "widthDataType": 60,
+          "widthDefault": 60
+        },
+        "meta": {
+          "updateAt": 1732448182305,
+          "createAt": 1722930537037
+        }
+      },
+      "f6DqzqMUyCHtG3GP8SfJT": {
+        "id": "f6DqzqMUyCHtG3GP8SfJT",
+        "tableId": "2ddaf9f7-85d3-4453-8470-a934135898c7",
+        "name": "temperature",
+        "comment": "",
+        "dataType": "double precision",
+        "default": "",
+        "options": 8,
+        "ui": {
+          "keys": 0,
+          "widthName": 68,
+          "widthComment": 60,
+          "widthDataType": 90,
+          "widthDefault": 60
+        },
+        "meta": {
+          "updateAt": 1732452344182,
+          "createAt": 1722930678985
+        }
+      },
+      "k9OvcBvPKl1NGOOmV4_Vy": {
+        "id": "k9OvcBvPKl1NGOOmV4_Vy",
+        "tableId": "2ddaf9f7-85d3-4453-8470-a934135898c7",
+        "name": "",
+        "comment": "",
+        "dataType": "",
+        "default": "",
+        "options": 0,
+        "ui": {
+          "keys": 0,
+          "widthName": 60,
+          "widthComment": 60,
+          "widthDataType": 60,
+          "widthDefault": 60
+        },
+        "meta": {
+          "updateAt": 1732448123550,
+          "createAt": 1732448123550
+        }
+      }
+    },
+    "relationshipEntities": {},
+    "indexEntities": {},
+    "indexColumnEntities": {},
+    "memoEntities": {}
+  },
+  "lww": {
+    "settings.databaseName": [
+      "settings",
+      -1,
+      -1,
+      {
+        "databaseName": 1722361536192
+      }
+    ],
+    "aee4378c-4c9b-4760-874d-8ae0721cf5d4": [
+      "tableColumnEntities",
+      -1,
+      -1,
+      {
+        "dataType": 1732452346994,
+        "name": 1732448234084
+      }
+    ],
+    "9265efe0-909f-4c5d-b58f-55f317e82fe0": [
+      "tableColumnEntities",
+      -1,
+      -1,
+      {
+        "dataType": 1732452351750,
+        "name": 1732448246453,
+        "options(notNull)": 1732448250644,
+        "default": 1732448252600
+      }
+    ],
+    "f057ff0a-4855-4917-8e94-3d4ed0f9f73e": [
+      "tableColumnEntities",
+      -1,
+      -1,
+      {
+        "dataType": 1732452350816,
+        "name": 1732448262213,
+        "options(notNull)": 1732448267271,
+        "default": 1732448269300
+      }
+    ],
+    "243615c4-5131-4068-93f4-e788e45badae": [
+      "tableColumnEntities",
+      -1,
+      -1,
+      {
+        "options(primaryKey)": 1722930519514,
+        "name": 1722930515619,
+        "dataType": 1722931389444,
+        "options(autoIncrement)": 1722931381835,
+        "options(notNull)": 1722931902729
+      }
+    ],
+    "S8QwVoUApfpaQ_Sob5EU2": [
+      "tableColumnEntities",
+      1722930537036,
+      -1,
+      {
+        "name": 1732448182304,
+        "dataType": 1732448160336,
+        "default": 1732448168254,
+        "options(notNull)": 1732448162550
+      }
+    ],
+    "6c4ba7c9-75b9-42d6-9293-394bae157ad9": [
+      "tableColumnEntities",
+      -1,
+      -1,
+      {
+        "comment": 1722931371499,
+        "options(unique)": 1732448192392,
+        "name": 1732448184382
+      }
+    ],
+    "ed898b28-9451-47ac-9eea-26f69ebe9a92": [
+      "tableColumnEntities",
+      -1,
+      -1,
+      {
+        "name": 1732448198391,
+        "options(notNull)": 1732448201618,
+        "default": 1732448203816
+      }
+    ],
+    "f6DqzqMUyCHtG3GP8SfJT": [
+      "tableColumnEntities",
+      1722930678983,
+      -1,
+      {
+        "name": 1732448210694,
+        "dataType": 1732452344181,
+        "default": 1732448225947,
+        "options(unique)": 1722931351406,
+        "options(notNull)": 1732448223331
+      }
+    ],
+    "k9OvcBvPKl1NGOOmV4_Vy": [
+      "tableColumnEntities",
+      1732448123549,
+      1732448124605,
+      {}
+    ],
+    "7b3d329b-cc0b-4049-bc66-823020067de7": [
+      "tableColumnEntities",
+      -1,
+      -1,
+      {
+        "name": 1732448277158,
+        "options(notNull)": 1732448278653,
+        "default": 1732448281152
+      }
+    ],
+    "2ddaf9f7-85d3-4453-8470-a934135898c7": [
+      "tableEntities",
+      -1,
+      -1,
+      {
+        "name": 1732448412946
+      }
+    ]
+  }
+}

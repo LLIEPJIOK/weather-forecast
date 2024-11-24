@@ -2,7 +2,7 @@ package models
 
 import "time"
 
-type WeatherObservation struct {
+type Weather struct {
 	ID            int       `json:"id"`
 	Timestamp     time.Time `json:"timestamp"`
 	City          string    `json:"city"`

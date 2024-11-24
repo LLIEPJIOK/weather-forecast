@@ -11,6 +11,7 @@ import (
 	"github.com/LLIEPJIOK/weather-forecast/backend/internal/repository"
 	"github.com/LLIEPJIOK/weather-forecast/backend/internal/service"
 	"github.com/LLIEPJIOK/weather-forecast/backend/internal/tranport/http"
+	"github.com/LLIEPJIOK/weather-forecast/backend/pkg/database/postgres"
 )
 
 func main() {
@@ -21,7 +22,14 @@ func main() {
 		log.Fatalf("failed to get config: %s", err)
 	}
 
-	whetherRepo := repository.NewWeatherRepository()
+	db, err := postgres.NewPostgres(cfg.PostgresConfig)
+	if err != nil {
+		log.Fatalf("failed to connect to db: %s", err)
+	}
+
+	defer db.Close()
+
+	whetherRepo := repository.NewWeatherRepository(db)
 	whetherService := service.NewWeatherService(whetherRepo)
 	server := http.New(ctx, cfg.RESTServerPort, whetherService)
 

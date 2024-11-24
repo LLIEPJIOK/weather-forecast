@@ -9,11 +9,11 @@ import (
 
 //go:generate mockery --name WeatherRepo --structname MockWeatherRepo --filename mock_weather_repo_test.go --outpkg service_test --output .
 type WeatherRepo interface {
-	AddWeatherObservation(ctx context.Context, ob models.WeatherObservation) (int, error)
-	GetWeatherObservation(ctx context.Context, id int) (models.WeatherObservation, error)
-	UpdateWeatherObservation(ctx context.Context, ob models.WeatherObservation) error
-	DeleteWeatherObservation(ctx context.Context, id int) (models.WeatherObservation, error)
-	ListWeatherObservations(ctx context.Context) ([]models.WeatherObservation, error)
+	AddWeather(ctx context.Context, ob *models.Weather) (int, error)
+	GetWeather(ctx context.Context, id int) (*models.Weather, error)
+	UpdateWeather(ctx context.Context, ob *models.Weather) error
+	DeleteWeather(ctx context.Context, id int) (*models.Weather, error)
+	ListWeathers(ctx context.Context) ([]*models.Weather, error)
 }
 
 type WeatherService struct {
@@ -24,50 +24,50 @@ func NewWeatherService(repo WeatherRepo) *WeatherService {
 	return &WeatherService{repo: repo}
 }
 
-func (s *WeatherService) AddWeatherObservation(
+func (s *WeatherService) AddWeather(
 	ctx context.Context,
-	ob models.WeatherObservation,
+	ob *models.Weather,
 ) (int, error) {
-	id, err := s.repo.AddWeatherObservation(ctx, ob)
+	id, err := s.repo.AddWeather(ctx, ob)
 	if err != nil {
-		return 0, fmt.Errorf("failed to add weather observation: %w", err)
+		return 0, fmt.Errorf("failed to add weather: %w", err)
 	}
 
 	return id, nil
 }
 
-func (s *WeatherService) GetWeatherObservation(
+func (s *WeatherService) GetWeather(
 	ctx context.Context,
 	id int,
-) (models.WeatherObservation, error) {
-	ob, err := s.repo.GetWeatherObservation(ctx, id)
+) (*models.Weather, error) {
+	ob, err := s.repo.GetWeather(ctx, id)
 	if err != nil {
-		return models.WeatherObservation{}, fmt.Errorf("failed to get weather observation: %w", err)
+		return nil, fmt.Errorf("failed to get weather: %w", err)
 	}
 
 	return ob, nil
 }
 
-func (s *WeatherService) UpdateWeatherObservation(
+func (s *WeatherService) UpdateWeather(
 	ctx context.Context,
-	ob models.WeatherObservation,
+	ob *models.Weather,
 ) error {
-	err := s.repo.UpdateWeatherObservation(ctx, ob)
+	err := s.repo.UpdateWeather(ctx, ob)
 	if err != nil {
-		return fmt.Errorf("failed to update weather observation: %w", err)
+		return fmt.Errorf("failed to update weather: %w", err)
 	}
 
 	return nil
 }
 
-func (s *WeatherService) DeleteWeatherObservation(
+func (s *WeatherService) DeleteWeather(
 	ctx context.Context,
 	id int,
-) (models.WeatherObservation, error) {
-	ob, err := s.repo.DeleteWeatherObservation(ctx, id)
+) (*models.Weather, error) {
+	ob, err := s.repo.DeleteWeather(ctx, id)
 	if err != nil {
-		return models.WeatherObservation{}, fmt.Errorf(
-			"failed to delete weather observation: %w",
+		return nil, fmt.Errorf(
+			"failed to delete weather: %w",
 			err,
 		)
 	}
@@ -75,12 +75,12 @@ func (s *WeatherService) DeleteWeatherObservation(
 	return ob, nil
 }
 
-func (s *WeatherService) ListWeatherObservations(
+func (s *WeatherService) ListWeathers(
 	ctx context.Context,
-) ([]models.WeatherObservation, error) {
-	obList, err := s.repo.ListWeatherObservations(ctx)
+) ([]*models.Weather, error) {
+	obList, err := s.repo.ListWeathers(ctx)
 	if err != nil {
-		return nil, fmt.Errorf("failed to list weather observations: %w", err)
+		return nil, fmt.Errorf("failed to list weathers: %w", err)
 	}
 
 	return obList, nil

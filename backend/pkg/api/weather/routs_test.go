@@ -21,7 +21,7 @@ import (
 
 type serviceBuilder func(t *testing.T) weather.WeatherService
 
-func TestAddWeatherObservationHandlerWithBuilder(t *testing.T) {
+func TestAddWeatherHandlerWithBuilder(t *testing.T) {
 	t.Parallel()
 
 	type testCase struct {
@@ -41,7 +41,7 @@ func TestAddWeatherObservationHandlerWithBuilder(t *testing.T) {
 
 				mockService := NewMockWeatherService(t)
 				mockService.
-					On("AddWeatherObservation", mock.Anything, mock.Anything).
+					On("AddWeather", mock.Anything, mock.Anything).
 					Return(1, nil).
 					Once()
 
@@ -69,7 +69,7 @@ func TestAddWeatherObservationHandlerWithBuilder(t *testing.T) {
 
 				mockService := NewMockWeatherService(t)
 				mockService.
-					On("AddWeatherObservation", mock.Anything, mock.Anything).
+					On("AddWeather", mock.Anything, mock.Anything).
 					Return(0, errors.New("database error")).
 					Once()
 
@@ -96,7 +96,7 @@ func TestAddWeatherObservationHandlerWithBuilder(t *testing.T) {
 			req.Header.Set(echo.HeaderContentType, echo.MIMEApplicationJSON)
 			rec := httptest.NewRecorder()
 			c := e.NewContext(req, rec)
-			handler := weather.AddWeatherObservationHandler(mockService)
+			handler := weather.AddWeatherHandler(mockService)
 
 			err := handler(c)
 			require.NoError(t, err)
@@ -106,7 +106,7 @@ func TestAddWeatherObservationHandlerWithBuilder(t *testing.T) {
 	}
 }
 
-func TestGetWeatherObservationHandlerWithBuilder(t *testing.T) {
+func TestGetWeatherHandlerWithBuilder(t *testing.T) {
 	t.Parallel()
 
 	type testCase struct {
@@ -128,8 +128,8 @@ func TestGetWeatherObservationHandlerWithBuilder(t *testing.T) {
 
 				mockService := NewMockWeatherService(t)
 				mockService.
-					On("GetWeatherObservation", mock.Anything, 1).
-					Return(models.WeatherObservation{
+					On("GetWeather", mock.Anything, 1).
+					Return(&models.Weather{
 						ID:            1,
 						City:          "Berlin",
 						Country:       "Germany",
@@ -177,8 +177,8 @@ func TestGetWeatherObservationHandlerWithBuilder(t *testing.T) {
 
 				mockService := NewMockWeatherService(t)
 				mockService.
-					On("GetWeatherObservation", mock.Anything, 2).
-					Return(models.WeatherObservation{}, repository.ErrNotFound{}).
+					On("GetWeather", mock.Anything, 2).
+					Return(&models.Weather{}, repository.ErrNotFound{}).
 					Once()
 
 				return mockService
@@ -196,8 +196,8 @@ func TestGetWeatherObservationHandlerWithBuilder(t *testing.T) {
 
 				mockService := NewMockWeatherService(t)
 				mockService.
-					On("GetWeatherObservation", mock.Anything, 3).
-					Return(models.WeatherObservation{}, errors.New("database error")).
+					On("GetWeather", mock.Anything, 3).
+					Return(&models.Weather{}, errors.New("database error")).
 					Once()
 
 				return mockService
@@ -226,7 +226,7 @@ func TestGetWeatherObservationHandlerWithBuilder(t *testing.T) {
 			c.SetParamNames("id")
 			c.SetParamValues(tc.inputID)
 
-			handler := weather.GetWeatherObservationHandler(mockService)
+			handler := weather.GetWeatherHandler(mockService)
 
 			err := handler(c)
 			require.NoError(t, err)
@@ -236,13 +236,13 @@ func TestGetWeatherObservationHandlerWithBuilder(t *testing.T) {
 	}
 }
 
-func TestUpdateWeatherObservationHandlerWithBuilder(t *testing.T) {
+func TestUpdateWeatherHandlerWithBuilder(t *testing.T) {
 	t.Parallel()
 
 	type testCase struct {
 		name               string
 		inputID            string
-		inputWeatherObs    models.WeatherObservation
+		inputWeatherObs    *models.Weather
 		repoBuilder        serviceBuilder
 		expectedStatusCode int
 		expectedResponse   string
@@ -252,7 +252,7 @@ func TestUpdateWeatherObservationHandlerWithBuilder(t *testing.T) {
 		{
 			name:    "Valid ID and valid data",
 			inputID: "1",
-			inputWeatherObs: models.WeatherObservation{
+			inputWeatherObs: &models.Weather{
 				Temperature:   22.5,
 				Humidity:      70,
 				Pressure:      1012,
@@ -265,12 +265,16 @@ func TestUpdateWeatherObservationHandlerWithBuilder(t *testing.T) {
 				mockService := NewMockWeatherService(t)
 				mockService.
 					On(
-						"UpdateWeatherObservation",
+						"UpdateWeather",
 						mock.Anything,
-						mock.MatchedBy(func(obs models.WeatherObservation) bool {
-							return obs.ID == 1 && obs.Temperature == 22.5 && obs.Humidity == 70 &&
-								obs.Pressure == 1012
-						}),
+						&models.Weather{
+							ID:            1,
+							Temperature:   22.5,
+							Humidity:      70,
+							Pressure:      1012,
+							WindSpeed:     3.5,
+							WeatherStatus: "Cloudy",
+						},
 					).
 					Return(nil).
 					Once()
@@ -283,8 +287,9 @@ func TestUpdateWeatherObservationHandlerWithBuilder(t *testing.T) {
 			}`,
 		},
 		{
-			name:    "Invalid ID",
-			inputID: "invalid_id",
+			name:            "Invalid ID",
+			inputID:         "invalid_id",
+			inputWeatherObs: &models.Weather{},
 			repoBuilder: func(t *testing.T) weather.WeatherService {
 				t.Helper()
 				return NewMockWeatherService(t)
@@ -297,7 +302,7 @@ func TestUpdateWeatherObservationHandlerWithBuilder(t *testing.T) {
 		{
 			name:    "Not Found",
 			inputID: "2",
-			inputWeatherObs: models.WeatherObservation{
+			inputWeatherObs: &models.Weather{
 				Temperature:   22.5,
 				Humidity:      70,
 				Pressure:      1012,
@@ -310,11 +315,16 @@ func TestUpdateWeatherObservationHandlerWithBuilder(t *testing.T) {
 				mockService := NewMockWeatherService(t)
 				mockService.
 					On(
-						"UpdateWeatherObservation",
+						"UpdateWeather",
 						mock.Anything,
-						mock.MatchedBy(func(obs models.WeatherObservation) bool {
-							return obs.ID == 2
-						}),
+						&models.Weather{
+							ID:            2,
+							Temperature:   22.5,
+							Humidity:      70,
+							Pressure:      1012,
+							WindSpeed:     3.5,
+							WeatherStatus: "Cloudy",
+						},
 					).
 					Return(repository.ErrNotFound{}).
 					Once()
@@ -329,7 +339,7 @@ func TestUpdateWeatherObservationHandlerWithBuilder(t *testing.T) {
 		{
 			name:    "Service error",
 			inputID: "3",
-			inputWeatherObs: models.WeatherObservation{
+			inputWeatherObs: &models.Weather{
 				Temperature:   22.5,
 				Humidity:      70,
 				Pressure:      1012,
@@ -342,11 +352,16 @@ func TestUpdateWeatherObservationHandlerWithBuilder(t *testing.T) {
 				mockService := NewMockWeatherService(t)
 				mockService.
 					On(
-						"UpdateWeatherObservation",
+						"UpdateWeather",
 						mock.Anything,
-						mock.MatchedBy(func(obs models.WeatherObservation) bool {
-							return obs.ID == 3
-						}),
+						&models.Weather{
+							ID:            3,
+							Temperature:   22.5,
+							Humidity:      70,
+							Pressure:      1012,
+							WindSpeed:     3.5,
+							WeatherStatus: "Cloudy",
+						},
 					).
 					Return(errors.New("database error")).
 					Once()
@@ -361,14 +376,14 @@ func TestUpdateWeatherObservationHandlerWithBuilder(t *testing.T) {
 		{
 			name:            "Invalid JSON format",
 			inputID:         "1",
-			inputWeatherObs: models.WeatherObservation{},
+			inputWeatherObs: &models.Weather{},
 			repoBuilder: func(t *testing.T) weather.WeatherService {
 				t.Helper()
 				return NewMockWeatherService(t)
 			},
 			expectedStatusCode: http.StatusBadRequest,
 			expectedResponse: `{
-				"message": "invalid input: code=400, message=Unmarshal type error: expected=float64, got=string, field=temperature, offset=31, internal=json: cannot unmarshal string into Go struct field WeatherObservation.temperature of type float64"
+				"message": "invalid input: code=400, message=Unmarshal type error: expected=float64, got=string, field=temperature, offset=31, internal=json: cannot unmarshal string into Go struct field Weather.temperature of type float64"
 			}`,
 		},
 	}
@@ -385,10 +400,11 @@ func TestUpdateWeatherObservationHandlerWithBuilder(t *testing.T) {
 			if tc.name == "Invalid JSON format" {
 				reqBody = []byte(
 					`{"Temperature": "invalid_value", "Humidity": 70}`,
-				) // Невалидный JSON
+				)
 			} else {
 				var err error
-				reqBody, err = json.Marshal(tc.inputWeatherObs)
+
+				reqBody, err = json.Marshal(*tc.inputWeatherObs)
 				require.NoError(t, err)
 			}
 
@@ -401,7 +417,7 @@ func TestUpdateWeatherObservationHandlerWithBuilder(t *testing.T) {
 			c.SetParamNames("id")
 			c.SetParamValues(tc.inputID)
 
-			handler := weather.UpdateWeatherObservationHandler(mockService)
+			handler := weather.UpdateWeatherHandler(mockService)
 
 			err := handler(c)
 			require.NoError(t, err)
@@ -411,7 +427,7 @@ func TestUpdateWeatherObservationHandlerWithBuilder(t *testing.T) {
 	}
 }
 
-func TestDeleteWeatherObservationHandlerWithBuilder(t *testing.T) {
+func TestDeleteWeatherHandlerWithBuilder(t *testing.T) {
 	t.Parallel()
 
 	type testCase struct {
@@ -433,8 +449,8 @@ func TestDeleteWeatherObservationHandlerWithBuilder(t *testing.T) {
 
 				mockService := NewMockWeatherService(t)
 				mockService.
-					On("DeleteWeatherObservation", mock.Anything, 1).
-					Return(models.WeatherObservation{
+					On("DeleteWeather", mock.Anything, 1).
+					Return(&models.Weather{
 						ID:            1,
 						City:          "Berlin",
 						Country:       "Germany",
@@ -482,8 +498,8 @@ func TestDeleteWeatherObservationHandlerWithBuilder(t *testing.T) {
 
 				mockService := NewMockWeatherService(t)
 				mockService.
-					On("DeleteWeatherObservation", mock.Anything, 2).
-					Return(models.WeatherObservation{}, repository.ErrNotFound{}).
+					On("DeleteWeather", mock.Anything, 2).
+					Return(&models.Weather{}, repository.ErrNotFound{}).
 					Once()
 
 				return mockService
@@ -501,8 +517,8 @@ func TestDeleteWeatherObservationHandlerWithBuilder(t *testing.T) {
 
 				mockService := NewMockWeatherService(t)
 				mockService.
-					On("DeleteWeatherObservation", mock.Anything, 3).
-					Return(models.WeatherObservation{}, errors.New("database error")).
+					On("DeleteWeather", mock.Anything, 3).
+					Return(&models.Weather{}, errors.New("database error")).
 					Once()
 
 				return mockService
@@ -531,7 +547,7 @@ func TestDeleteWeatherObservationHandlerWithBuilder(t *testing.T) {
 			c.SetParamNames("id")
 			c.SetParamValues(tc.inputID)
 
-			handler := weather.DeleteWeatherObservationHandler(mockService)
+			handler := weather.DeleteWeatherHandler(mockService)
 
 			err := handler(c)
 			require.NoError(t, err)
@@ -541,7 +557,7 @@ func TestDeleteWeatherObservationHandlerWithBuilder(t *testing.T) {
 	}
 }
 
-func TestListWeatherObservationsHandlerWithBuilder(t *testing.T) {
+func TestListWeathersHandlerWithBuilder(t *testing.T) {
 	t.Parallel()
 
 	type testCase struct {
@@ -555,14 +571,14 @@ func TestListWeatherObservationsHandlerWithBuilder(t *testing.T) {
 
 	tt := []testCase{
 		{
-			name: "Valid observations",
+			name: "Valid weathers",
 			repoBuilder: func(t *testing.T) weather.WeatherService {
 				t.Helper()
 
 				mockService := NewMockWeatherService(t)
 				mockService.
-					On("ListWeatherObservations", mock.Anything).
-					Return([]models.WeatherObservation{
+					On("ListWeathers", mock.Anything).
+					Return([]*models.Weather{
 						{
 							ID:            1,
 							City:          "Berlin",
@@ -623,7 +639,7 @@ func TestListWeatherObservationsHandlerWithBuilder(t *testing.T) {
 
 				mockService := NewMockWeatherService(t)
 				mockService.
-					On("ListWeatherObservations", mock.Anything).
+					On("ListWeathers", mock.Anything).
 					Return(nil, errors.New("database error")).
 					Once()
 
@@ -650,7 +666,7 @@ func TestListWeatherObservationsHandlerWithBuilder(t *testing.T) {
 
 			c := e.NewContext(req, rec)
 
-			handler := weather.ListWeatherObservationsHandler(mockService)
+			handler := weather.ListWeathersHandler(mockService)
 
 			err := handler(c)
 			require.NoError(t, err)

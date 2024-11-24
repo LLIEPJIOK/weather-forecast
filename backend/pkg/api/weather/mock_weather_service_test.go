@@ -14,26 +14,26 @@ type MockWeatherService struct {
 	mock.Mock
 }
 
-// AddWeatherObservation provides a mock function with given fields: ctx, ob
-func (_m *MockWeatherService) AddWeatherObservation(ctx context.Context, ob models.WeatherObservation) (int, error) {
+// AddWeather provides a mock function with given fields: ctx, ob
+func (_m *MockWeatherService) AddWeather(ctx context.Context, ob *models.Weather) (int, error) {
 	ret := _m.Called(ctx, ob)
 
 	if len(ret) == 0 {
-		panic("no return value specified for AddWeatherObservation")
+		panic("no return value specified for AddWeather")
 	}
 
 	var r0 int
 	var r1 error
-	if rf, ok := ret.Get(0).(func(context.Context, models.WeatherObservation) (int, error)); ok {
+	if rf, ok := ret.Get(0).(func(context.Context, *models.Weather) (int, error)); ok {
 		return rf(ctx, ob)
 	}
-	if rf, ok := ret.Get(0).(func(context.Context, models.WeatherObservation) int); ok {
+	if rf, ok := ret.Get(0).(func(context.Context, *models.Weather) int); ok {
 		r0 = rf(ctx, ob)
 	} else {
 		r0 = ret.Get(0).(int)
 	}
 
-	if rf, ok := ret.Get(1).(func(context.Context, models.WeatherObservation) error); ok {
+	if rf, ok := ret.Get(1).(func(context.Context, *models.Weather) error); ok {
 		r1 = rf(ctx, ob)
 	} else {
 		r1 = ret.Error(1)
@@ -42,23 +42,25 @@ func (_m *MockWeatherService) AddWeatherObservation(ctx context.Context, ob mode
 	return r0, r1
 }
 
-// DeleteWeatherObservation provides a mock function with given fields: ctx, id
-func (_m *MockWeatherService) DeleteWeatherObservation(ctx context.Context, id int) (models.WeatherObservation, error) {
+// DeleteWeather provides a mock function with given fields: ctx, id
+func (_m *MockWeatherService) DeleteWeather(ctx context.Context, id int) (*models.Weather, error) {
 	ret := _m.Called(ctx, id)
 
 	if len(ret) == 0 {
-		panic("no return value specified for DeleteWeatherObservation")
+		panic("no return value specified for DeleteWeather")
 	}
 
-	var r0 models.WeatherObservation
+	var r0 *models.Weather
 	var r1 error
-	if rf, ok := ret.Get(0).(func(context.Context, int) (models.WeatherObservation, error)); ok {
+	if rf, ok := ret.Get(0).(func(context.Context, int) (*models.Weather, error)); ok {
 		return rf(ctx, id)
 	}
-	if rf, ok := ret.Get(0).(func(context.Context, int) models.WeatherObservation); ok {
+	if rf, ok := ret.Get(0).(func(context.Context, int) *models.Weather); ok {
 		r0 = rf(ctx, id)
 	} else {
-		r0 = ret.Get(0).(models.WeatherObservation)
+		if ret.Get(0) != nil {
+			r0 = ret.Get(0).(*models.Weather)
+		}
 	}
 
 	if rf, ok := ret.Get(1).(func(context.Context, int) error); ok {
@@ -70,23 +72,25 @@ func (_m *MockWeatherService) DeleteWeatherObservation(ctx context.Context, id i
 	return r0, r1
 }
 
-// GetWeatherObservation provides a mock function with given fields: ctx, id
-func (_m *MockWeatherService) GetWeatherObservation(ctx context.Context, id int) (models.WeatherObservation, error) {
+// GetWeather provides a mock function with given fields: ctx, id
+func (_m *MockWeatherService) GetWeather(ctx context.Context, id int) (*models.Weather, error) {
 	ret := _m.Called(ctx, id)
 
 	if len(ret) == 0 {
-		panic("no return value specified for GetWeatherObservation")
+		panic("no return value specified for GetWeather")
 	}
 
-	var r0 models.WeatherObservation
+	var r0 *models.Weather
 	var r1 error
-	if rf, ok := ret.Get(0).(func(context.Context, int) (models.WeatherObservation, error)); ok {
+	if rf, ok := ret.Get(0).(func(context.Context, int) (*models.Weather, error)); ok {
 		return rf(ctx, id)
 	}
-	if rf, ok := ret.Get(0).(func(context.Context, int) models.WeatherObservation); ok {
+	if rf, ok := ret.Get(0).(func(context.Context, int) *models.Weather); ok {
 		r0 = rf(ctx, id)
 	} else {
-		r0 = ret.Get(0).(models.WeatherObservation)
+		if ret.Get(0) != nil {
+			r0 = ret.Get(0).(*models.Weather)
+		}
 	}
 
 	if rf, ok := ret.Get(1).(func(context.Context, int) error); ok {
@@ -98,24 +102,24 @@ func (_m *MockWeatherService) GetWeatherObservation(ctx context.Context, id int)
 	return r0, r1
 }
 
-// ListWeatherObservations provides a mock function with given fields: ctx
-func (_m *MockWeatherService) ListWeatherObservations(ctx context.Context) ([]models.WeatherObservation, error) {
+// ListWeathers provides a mock function with given fields: ctx
+func (_m *MockWeatherService) ListWeathers(ctx context.Context) ([]*models.Weather, error) {
 	ret := _m.Called(ctx)
 
 	if len(ret) == 0 {
-		panic("no return value specified for ListWeatherObservations")
+		panic("no return value specified for ListWeathers")
 	}
 
-	var r0 []models.WeatherObservation
+	var r0 []*models.Weather
 	var r1 error
-	if rf, ok := ret.Get(0).(func(context.Context) ([]models.WeatherObservation, error)); ok {
+	if rf, ok := ret.Get(0).(func(context.Context) ([]*models.Weather, error)); ok {
 		return rf(ctx)
 	}
-	if rf, ok := ret.Get(0).(func(context.Context) []models.WeatherObservation); ok {
+	if rf, ok := ret.Get(0).(func(context.Context) []*models.Weather); ok {
 		r0 = rf(ctx)
 	} else {
 		if ret.Get(0) != nil {
-			r0 = ret.Get(0).([]models.WeatherObservation)
+			r0 = ret.Get(0).([]*models.Weather)
 		}
 	}
 
@@ -128,16 +132,16 @@ func (_m *MockWeatherService) ListWeatherObservations(ctx context.Context) ([]mo
 	return r0, r1
 }
 
-// UpdateWeatherObservation provides a mock function with given fields: ctx, ob
-func (_m *MockWeatherService) UpdateWeatherObservation(ctx context.Context, ob models.WeatherObservation) error {
+// UpdateWeather provides a mock function with given fields: ctx, ob
+func (_m *MockWeatherService) UpdateWeather(ctx context.Context, ob *models.Weather) error {
 	ret := _m.Called(ctx, ob)
 
 	if len(ret) == 0 {
-		panic("no return value specified for UpdateWeatherObservation")
+		panic("no return value specified for UpdateWeather")
 	}
 
 	var r0 error
-	if rf, ok := ret.Get(0).(func(context.Context, models.WeatherObservation) error); ok {
+	if rf, ok := ret.Get(0).(func(context.Context, *models.Weather) error); ok {
 		r0 = rf(ctx, ob)
 	} else {
 		r0 = ret.Error(0)

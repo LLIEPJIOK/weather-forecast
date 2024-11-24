@@ -2,109 +2,85 @@ package repository
 
 import (
 	"context"
-	"maps"
-	"slices"
-	"sync"
+	"fmt"
 
 	"github.com/LLIEPJIOK/weather-forecast/backend/internal/models"
 )
 
+//go:generate mockery --name Database --structname MockDatabase --filename mock_database_test.go --outpkg repository_test --output .
+type Database interface {
+	AddWeather(ctx context.Context, weather *models.Weather) (*models.Weather, error)
+	GetWeather(ctx context.Context, id int) (*models.Weather, error)
+	ListWeathers(ctx context.Context) ([]*models.Weather, error)
+	UpdateWeather(ctx context.Context, weather *models.Weather) (*models.Weather, error)
+	DeleteWeather(ctx context.Context, id int) (*models.Weather, error)
+}
+
 type WeatherRepository struct {
-	mu     *sync.Mutex
-	obs    map[int]models.WeatherObservation
-	nextID int
+	db Database
 }
 
-func NewWeatherRepository() *WeatherRepository {
+func NewWeatherRepository(db Database) *WeatherRepository {
 	return &WeatherRepository{
-		mu:     &sync.Mutex{},
-		obs:    make(map[int]models.WeatherObservation),
-		nextID: 1,
+		db: db,
 	}
 }
 
-func (r *WeatherRepository) AddWeatherObservation(
-	_ context.Context,
-	ob models.WeatherObservation,
+func (r *WeatherRepository) AddWeather(
+	ctx context.Context,
+	ob *models.Weather,
 ) (int, error) {
-	r.mu.Lock()
-	defer r.mu.Unlock()
+	res, err := r.db.AddWeather(ctx, ob)
+	if err != nil {
+		return 0, fmt.Errorf("failed to add weather: %w", err)
+	}
 
-	ob.ID = r.nextID
-	r.obs[r.nextID] = ob
-
-	r.nextID++
-
-	return ob.ID, nil
+	return res.ID, nil
 }
 
-func (r *WeatherRepository) GetWeatherObservation(
-	_ context.Context,
+func (r *WeatherRepository) GetWeather(
+	ctx context.Context,
 	id int,
-) (models.WeatherObservation, error) {
-	r.mu.Lock()
-	defer r.mu.Unlock()
-
-	ob, ok := r.obs[id]
-	if !ok {
-		return models.WeatherObservation{}, NewErrNotFound(id)
+) (*models.Weather, error) {
+	res, err := r.db.GetWeather(ctx, id)
+	if err != nil {
+		return nil, fmt.Errorf("failed to get weather: %w", err)
 	}
 
-	return ob, nil
+	return res, nil
 }
 
-func (r *WeatherRepository) UpdateWeatherObservation(
-	_ context.Context,
-	ob models.WeatherObservation,
+func (r *WeatherRepository) UpdateWeather(
+	ctx context.Context,
+	ob *models.Weather,
 ) error {
-	r.mu.Lock()
-	defer r.mu.Unlock()
-
-	_, ok := r.obs[ob.ID]
-	if !ok {
-		return NewErrNotFound(ob.ID)
+	_, err := r.db.UpdateWeather(ctx, ob)
+	if err != nil {
+		return fmt.Errorf("failed to update weather: %w", err)
 	}
 
-	r.obs[ob.ID] = ob
 	return nil
 }
 
-func (r *WeatherRepository) DeleteWeatherObservation(
-	_ context.Context,
+func (r *WeatherRepository) DeleteWeather(
+	ctx context.Context,
 	id int,
-) (models.WeatherObservation, error) {
-	r.mu.Lock()
-	defer r.mu.Unlock()
-
-	ob, ok := r.obs[id]
-	if !ok {
-		return models.WeatherObservation{}, NewErrNotFound(id)
+) (*models.Weather, error) {
+	res, err := r.db.DeleteWeather(ctx, id)
+	if err != nil {
+		return nil, fmt.Errorf("failed to delete weather: %w", err)
 	}
 
-	delete(r.obs, id)
-	return ob, nil
+	return res, nil
 }
 
-func (r *WeatherRepository) ListWeatherObservations(
-	_ context.Context,
-) ([]models.WeatherObservation, error) {
-	r.mu.Lock()
-	defer r.mu.Unlock()
+func (r *WeatherRepository) ListWeathers(
+	ctx context.Context,
+) ([]*models.Weather, error) {
+	res, err := r.db.ListWeathers(ctx)
+	if err != nil {
+		return nil, fmt.Errorf("failed to list weathers: %w", err)
+	}
 
-	obList := slices.SortedFunc(
-		maps.Values(r.obs),
-		func(first, second models.WeatherObservation) int {
-			if first.ID < second.ID {
-				return -1
-			}
-
-			if first.ID > second.ID {
-				return 1
-			}
-
-			return 0
-		},
-	)
-
-	return obList, nil
+	return res, nil
 }

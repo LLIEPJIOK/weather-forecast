@@ -13,7 +13,7 @@ import (
 	"github.com/stretchr/testify/require"
 )
 
-func TestAddWeatherObservationWithoutError(t *testing.T) {
+func TestAddWeatherWithoutError(t *testing.T) {
 	t.Parallel()
 
 	type TestCase struct {
@@ -30,7 +30,7 @@ func TestAddWeatherObservationWithoutError(t *testing.T) {
 				t.Helper()
 
 				repo := NewMockWeatherRepo(t)
-				repo.On("AddWeatherObservation", mock.Anything, mock.Anything).Return(1, nil).Once()
+				repo.On("AddWeather", mock.Anything, mock.Anything).Return(1, nil).Once()
 
 				return repo
 			},
@@ -45,14 +45,14 @@ func TestAddWeatherObservationWithoutError(t *testing.T) {
 
 			srv := service.NewWeatherService(tc.repoBuilder(t))
 
-			id, err := srv.AddWeatherObservation(tc.ctx, models.WeatherObservation{})
+			id, err := srv.AddWeather(tc.ctx, &models.Weather{})
 			require.NoError(t, err)
 			assert.Equal(t, tc.id, id)
 		})
 	}
 }
 
-func TestAddWeatherObservationWithError(t *testing.T) {
+func TestAddWeatherWithError(t *testing.T) {
 	t.Parallel()
 
 	type TestCase struct {
@@ -71,14 +71,14 @@ func TestAddWeatherObservationWithError(t *testing.T) {
 				t.Helper()
 
 				repo := NewMockWeatherRepo(t)
-				repo.On("AddWeatherObservation", mock.Anything, mock.Anything).
+				repo.On("AddWeather", mock.Anything, mock.Anything).
 					Return(0, errAdd).
 					Once()
 
 				return repo
 			},
 			ctx: context.Background(),
-			err: fmt.Errorf("failed to add weather observation: repo error"),
+			err: fmt.Errorf("failed to add weather: repo error"),
 		},
 	}
 
@@ -88,13 +88,13 @@ func TestAddWeatherObservationWithError(t *testing.T) {
 
 			srv := service.NewWeatherService(tc.repoBuilder(t))
 
-			_, err := srv.AddWeatherObservation(tc.ctx, models.WeatherObservation{})
+			_, err := srv.AddWeather(tc.ctx, &models.Weather{})
 			require.EqualError(t, err, tc.err.Error())
 		})
 	}
 }
 
-func TestGetWeatherObservationWithoutError(t *testing.T) {
+func TestGetWeatherWithoutError(t *testing.T) {
 	t.Parallel()
 
 	type TestCase struct {
@@ -102,7 +102,7 @@ func TestGetWeatherObservationWithoutError(t *testing.T) {
 		repoBuilder func(t *testing.T) service.WeatherRepo
 		ctx         context.Context
 		id          int
-		ob          models.WeatherObservation
+		ob          *models.Weather
 	}
 
 	tt := []TestCase{
@@ -112,7 +112,7 @@ func TestGetWeatherObservationWithoutError(t *testing.T) {
 				t.Helper()
 
 				repo := NewMockWeatherRepo(t)
-				repo.On("GetWeatherObservation", mock.Anything, 1).Return(models.WeatherObservation{
+				repo.On("GetWeather", mock.Anything, 1).Return(&models.Weather{
 					Temperature:   25.0,
 					Humidity:      60.0,
 					Pressure:      1013.0,
@@ -125,7 +125,7 @@ func TestGetWeatherObservationWithoutError(t *testing.T) {
 			},
 			ctx: context.Background(),
 			id:  1,
-			ob: models.WeatherObservation{
+			ob: &models.Weather{
 				Temperature:   25.0,
 				Humidity:      60.0,
 				Pressure:      1013.0,
@@ -142,14 +142,14 @@ func TestGetWeatherObservationWithoutError(t *testing.T) {
 
 			srv := service.NewWeatherService(tc.repoBuilder(t))
 
-			ob, err := srv.GetWeatherObservation(tc.ctx, tc.id)
+			ob, err := srv.GetWeather(tc.ctx, tc.id)
 			require.NoError(t, err)
 			assert.Equal(t, tc.ob, ob)
 		})
 	}
 }
 
-func TestGetWeatherObservationWithError(t *testing.T) {
+func TestGetWeatherWithError(t *testing.T) {
 	t.Parallel()
 
 	type TestCase struct {
@@ -169,15 +169,15 @@ func TestGetWeatherObservationWithError(t *testing.T) {
 				t.Helper()
 
 				repo := NewMockWeatherRepo(t)
-				repo.On("GetWeatherObservation", mock.Anything, 1).
-					Return(models.WeatherObservation{}, errGet).
+				repo.On("GetWeather", mock.Anything, 1).
+					Return(&models.Weather{}, errGet).
 					Once()
 
 				return repo
 			},
 			ctx: context.Background(),
 			id:  1,
-			err: fmt.Errorf("failed to get weather observation: repo error"),
+			err: fmt.Errorf("failed to get weather: repo error"),
 		},
 	}
 
@@ -187,13 +187,13 @@ func TestGetWeatherObservationWithError(t *testing.T) {
 
 			srv := service.NewWeatherService(tc.repoBuilder(t))
 
-			_, err := srv.GetWeatherObservation(tc.ctx, tc.id)
+			_, err := srv.GetWeather(tc.ctx, tc.id)
 			require.EqualError(t, err, tc.err.Error())
 		})
 	}
 }
 
-func TestUpdateWeatherObservationWithoutError(t *testing.T) {
+func TestUpdateWeatherWithoutError(t *testing.T) {
 	t.Parallel()
 
 	type TestCase struct {
@@ -209,7 +209,7 @@ func TestUpdateWeatherObservationWithoutError(t *testing.T) {
 				t.Helper()
 
 				repo := NewMockWeatherRepo(t)
-				repo.On("UpdateWeatherObservation", mock.Anything, mock.Anything).Return(nil).Once()
+				repo.On("UpdateWeather", mock.Anything, mock.Anything).Return(nil).Once()
 
 				return repo
 			},
@@ -223,13 +223,13 @@ func TestUpdateWeatherObservationWithoutError(t *testing.T) {
 
 			srv := service.NewWeatherService(tc.repoBuilder(t))
 
-			err := srv.UpdateWeatherObservation(tc.ctx, models.WeatherObservation{})
+			err := srv.UpdateWeather(tc.ctx, &models.Weather{})
 			require.NoError(t, err)
 		})
 	}
 }
 
-func TestUpdateWeatherObservationWithError(t *testing.T) {
+func TestUpdateWeatherWithError(t *testing.T) {
 	t.Parallel()
 
 	type TestCase struct {
@@ -248,14 +248,14 @@ func TestUpdateWeatherObservationWithError(t *testing.T) {
 				t.Helper()
 
 				repo := NewMockWeatherRepo(t)
-				repo.On("UpdateWeatherObservation", mock.Anything, mock.Anything).
+				repo.On("UpdateWeather", mock.Anything, mock.Anything).
 					Return(errUpdate).
 					Once()
 
 				return repo
 			},
 			ctx: context.Background(),
-			err: fmt.Errorf("failed to update weather observation: repo error"),
+			err: fmt.Errorf("failed to update weather: repo error"),
 		},
 	}
 
@@ -265,13 +265,13 @@ func TestUpdateWeatherObservationWithError(t *testing.T) {
 
 			srv := service.NewWeatherService(tc.repoBuilder(t))
 
-			err := srv.UpdateWeatherObservation(tc.ctx, models.WeatherObservation{})
+			err := srv.UpdateWeather(tc.ctx, &models.Weather{})
 			require.EqualError(t, err, tc.err.Error())
 		})
 	}
 }
 
-func TestDeleteWeatherObservationWithoutError(t *testing.T) {
+func TestDeleteWeatherWithoutError(t *testing.T) {
 	t.Parallel()
 
 	type TestCase struct {
@@ -279,7 +279,7 @@ func TestDeleteWeatherObservationWithoutError(t *testing.T) {
 		repoBuilder func(t *testing.T) service.WeatherRepo
 		ctx         context.Context
 		id          int
-		ob          models.WeatherObservation
+		ob          *models.Weather
 	}
 
 	tt := []TestCase{
@@ -289,8 +289,8 @@ func TestDeleteWeatherObservationWithoutError(t *testing.T) {
 				t.Helper()
 
 				repo := NewMockWeatherRepo(t)
-				repo.On("DeleteWeatherObservation", mock.Anything, 1).
-					Return(models.WeatherObservation{
+				repo.On("DeleteWeather", mock.Anything, 1).
+					Return(&models.Weather{
 						Temperature:   30.0,
 						Humidity:      65.0,
 						Pressure:      1015.0,
@@ -304,7 +304,7 @@ func TestDeleteWeatherObservationWithoutError(t *testing.T) {
 			},
 			ctx: context.Background(),
 			id:  1,
-			ob: models.WeatherObservation{
+			ob: &models.Weather{
 				Temperature:   30.0,
 				Humidity:      65.0,
 				Pressure:      1015.0,
@@ -321,14 +321,14 @@ func TestDeleteWeatherObservationWithoutError(t *testing.T) {
 
 			srv := service.NewWeatherService(tc.repoBuilder(t))
 
-			ob, err := srv.DeleteWeatherObservation(tc.ctx, tc.id)
+			ob, err := srv.DeleteWeather(tc.ctx, tc.id)
 			require.NoError(t, err)
 			assert.Equal(t, tc.ob, ob)
 		})
 	}
 }
 
-func TestDeleteWeatherObservationWithError(t *testing.T) {
+func TestDeleteWeatherWithError(t *testing.T) {
 	t.Parallel()
 
 	type TestCase struct {
@@ -348,15 +348,15 @@ func TestDeleteWeatherObservationWithError(t *testing.T) {
 				t.Helper()
 
 				repo := NewMockWeatherRepo(t)
-				repo.On("DeleteWeatherObservation", mock.Anything, 1).
-					Return(models.WeatherObservation{}, errDelete).
+				repo.On("DeleteWeather", mock.Anything, 1).
+					Return(&models.Weather{}, errDelete).
 					Once()
 
 				return repo
 			},
 			ctx: context.Background(),
 			id:  1,
-			err: fmt.Errorf("failed to delete weather observation: repo error"),
+			err: fmt.Errorf("failed to delete weather: repo error"),
 		},
 	}
 
@@ -366,20 +366,20 @@ func TestDeleteWeatherObservationWithError(t *testing.T) {
 
 			srv := service.NewWeatherService(tc.repoBuilder(t))
 
-			_, err := srv.DeleteWeatherObservation(tc.ctx, tc.id)
+			_, err := srv.DeleteWeather(tc.ctx, tc.id)
 			require.EqualError(t, err, tc.err.Error())
 		})
 	}
 }
 
-func TestListWeatherObservationsWithoutError(t *testing.T) {
+func TestListWeathersWithoutError(t *testing.T) {
 	t.Parallel()
 
 	type TestCase struct {
 		name        string
 		repoBuilder func(t *testing.T) service.WeatherRepo
 		ctx         context.Context
-		obList      []models.WeatherObservation
+		obList      []*models.Weather
 	}
 
 	tt := []TestCase{
@@ -389,8 +389,8 @@ func TestListWeatherObservationsWithoutError(t *testing.T) {
 				t.Helper()
 
 				repo := NewMockWeatherRepo(t)
-				repo.On("ListWeatherObservations", mock.Anything).
-					Return([]models.WeatherObservation{
+				repo.On("ListWeathers", mock.Anything).
+					Return([]*models.Weather{
 						{
 							Temperature:   25.0,
 							Humidity:      60.0,
@@ -421,7 +421,7 @@ func TestListWeatherObservationsWithoutError(t *testing.T) {
 				return repo
 			},
 			ctx: context.Background(),
-			obList: []models.WeatherObservation{
+			obList: []*models.Weather{
 				{
 					Temperature:   25.0,
 					Humidity:      60.0,
@@ -456,14 +456,14 @@ func TestListWeatherObservationsWithoutError(t *testing.T) {
 
 			srv := service.NewWeatherService(tc.repoBuilder(t))
 
-			obList, err := srv.ListWeatherObservations(tc.ctx)
+			obList, err := srv.ListWeathers(tc.ctx)
 			require.NoError(t, err)
 			assert.Equal(t, tc.obList, obList)
 		})
 	}
 }
 
-func TestListWeatherObservationsWithError(t *testing.T) {
+func TestListWeathersWithError(t *testing.T) {
 	t.Parallel()
 
 	type TestCase struct {
@@ -482,12 +482,12 @@ func TestListWeatherObservationsWithError(t *testing.T) {
 				t.Helper()
 
 				repo := NewMockWeatherRepo(t)
-				repo.On("ListWeatherObservations", mock.Anything).Return(nil, errList).Once()
+				repo.On("ListWeathers", mock.Anything).Return(nil, errList).Once()
 
 				return repo
 			},
 			ctx: context.Background(),
-			err: fmt.Errorf("failed to list weather observations: repo error"),
+			err: fmt.Errorf("failed to list weathers: repo error"),
 		},
 	}
 
@@ -497,7 +497,7 @@ func TestListWeatherObservationsWithError(t *testing.T) {
 
 			srv := service.NewWeatherService(tc.repoBuilder(t))
 
-			_, err := srv.ListWeatherObservations(tc.ctx)
+			_, err := srv.ListWeathers(tc.ctx)
 			require.EqualError(t, err, tc.err.Error())
 		})
 	}

@@ -1,0 +1,9 @@
+version: "2"
+sql:
+  - engine: "postgresql"
+    queries: "../../../database/queries/queries.sql"
+    schema: "../../../docs/erd/dbscheme.sql"
+    gen:
+      go:
+        package: "postgres"
+        out: "/"

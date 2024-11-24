@@ -24,23 +24,23 @@ type EchoID struct {
 
 //go:generate mockery --name WeatherService --structname MockWeatherService --filename mock_weather_service_test.go --outpkg weather_test --output .
 type WeatherService interface {
-	AddWeatherObservation(ctx context.Context, ob models.WeatherObservation) (int, error)
-	GetWeatherObservation(ctx context.Context, id int) (models.WeatherObservation, error)
-	UpdateWeatherObservation(ctx context.Context, ob models.WeatherObservation) error
-	DeleteWeatherObservation(ctx context.Context, id int) (models.WeatherObservation, error)
-	ListWeatherObservations(ctx context.Context) ([]models.WeatherObservation, error)
+	AddWeather(ctx context.Context, ob *models.Weather) (int, error)
+	GetWeather(ctx context.Context, id int) (*models.Weather, error)
+	UpdateWeather(ctx context.Context, ob *models.Weather) error
+	DeleteWeather(ctx context.Context, id int) (*models.Weather, error)
+	ListWeathers(ctx context.Context) ([]*models.Weather, error)
 }
 
-func RegisterWeatherObservationRoutes(
+func RegisterWeatherRoutes(
 	ctx context.Context,
 	server *echo.Echo,
 	weatherService WeatherService,
 ) {
-	server.POST("/weather", AddWeatherObservationHandler(weatherService))
-	server.GET("/weather/:id", GetWeatherObservationHandler(weatherService))
-	server.PUT("/weather/:id", UpdateWeatherObservationHandler(weatherService))
-	server.DELETE("/weather/:id", DeleteWeatherObservationHandler(weatherService))
-	server.GET("/weathers", ListWeatherObservationsHandler(weatherService))
+	server.POST("/weather", AddWeatherHandler(weatherService))
+	server.GET("/weather/:id", GetWeatherHandler(weatherService))
+	server.PUT("/weather/:id", UpdateWeatherHandler(weatherService))
+	server.DELETE("/weather/:id", DeleteWeatherHandler(weatherService))
+	server.GET("/weathers", ListWeathersHandler(weatherService))
 
 	server.Use(middleware.CORSWithConfig(middleware.CORSConfig{
 		AllowOrigins: []string{"http://localhost:3000"}, // Разрешаем запросы с вашего фронтенда
@@ -48,9 +48,9 @@ func RegisterWeatherObservationRoutes(
 	}))
 }
 
-func AddWeatherObservationHandler(weatherService WeatherService) echo.HandlerFunc {
+func AddWeatherHandler(weatherService WeatherService) echo.HandlerFunc {
 	return func(c echo.Context) error {
-		var ob models.WeatherObservation
+		var ob models.Weather
 
 		if err := c.Bind(&ob); err != nil {
 			return c.JSONPretty(
@@ -60,9 +60,9 @@ func AddWeatherObservationHandler(weatherService WeatherService) echo.HandlerFun
 			)
 		}
 
-		id, err := weatherService.AddWeatherObservation(c.Request().Context(), ob)
+		id, err := weatherService.AddWeather(c.Request().Context(), &ob)
 		if err != nil {
-			c.Logger().Errorf("failed to add observation: %s", err)
+			c.Logger().Errorf("failed to add: %s", err)
 			return c.JSONPretty(
 				http.StatusInternalServerError,
 				EchoMessage{Msg: "The server is temporarily unavailable, please try again later"},
@@ -74,7 +74,7 @@ func AddWeatherObservationHandler(weatherService WeatherService) echo.HandlerFun
 	}
 }
 
-func GetWeatherObservationHandler(weatherService WeatherService) echo.HandlerFunc {
+func GetWeatherHandler(weatherService WeatherService) echo.HandlerFunc {
 	return func(c echo.Context) error {
 		id, err := parseID(c)
 		if err != nil {
@@ -85,7 +85,7 @@ func GetWeatherObservationHandler(weatherService WeatherService) echo.HandlerFun
 			)
 		}
 
-		ob, err := weatherService.GetWeatherObservation(c.Request().Context(), id)
+		ob, err := weatherService.GetWeather(c.Request().Context(), id)
 		if err != nil {
 			if errors.As(err, &repository.ErrNotFound{}) {
 				return c.JSONPretty(
@@ -95,7 +95,7 @@ func GetWeatherObservationHandler(weatherService WeatherService) echo.HandlerFun
 				)
 			}
 
-			c.Logger().Errorf("failed to get observation: %s", err)
+			c.Logger().Errorf("failed to get: %s", err)
 			return c.JSONPretty(
 				http.StatusInternalServerError,
 				EchoMessage{Msg: "The server is temporarily unavailable, please try again later"},
@@ -107,9 +107,9 @@ func GetWeatherObservationHandler(weatherService WeatherService) echo.HandlerFun
 	}
 }
 
-func UpdateWeatherObservationHandler(weatherService WeatherService) echo.HandlerFunc {
+func UpdateWeatherHandler(weatherService WeatherService) echo.HandlerFunc {
 	return func(c echo.Context) error {
-		var ob models.WeatherObservation
+		var ob models.Weather
 
 		if err := c.Bind(&ob); err != nil {
 			return c.JSONPretty(
@@ -130,7 +130,7 @@ func UpdateWeatherObservationHandler(weatherService WeatherService) echo.Handler
 
 		ob.ID = id
 
-		err = weatherService.UpdateWeatherObservation(c.Request().Context(), ob)
+		err = weatherService.UpdateWeather(c.Request().Context(), &ob)
 		if err != nil {
 			if errors.As(err, &repository.ErrNotFound{}) {
 				return c.JSONPretty(
@@ -140,7 +140,7 @@ func UpdateWeatherObservationHandler(weatherService WeatherService) echo.Handler
 				)
 			}
 
-			c.Logger().Errorf("failed to update observation: %s", err)
+			c.Logger().Errorf("failed to update: %s", err)
 			return c.JSONPretty(
 				http.StatusInternalServerError,
 				EchoMessage{Msg: "The server is temporarily unavailable, please try again later"},
@@ -152,7 +152,7 @@ func UpdateWeatherObservationHandler(weatherService WeatherService) echo.Handler
 	}
 }
 
-func DeleteWeatherObservationHandler(weatherService WeatherService) echo.HandlerFunc {
+func DeleteWeatherHandler(weatherService WeatherService) echo.HandlerFunc {
 	return func(c echo.Context) error {
 		id, err := parseID(c)
 		if err != nil {
@@ -163,7 +163,7 @@ func DeleteWeatherObservationHandler(weatherService WeatherService) echo.Handler
 			)
 		}
 
-		ob, err := weatherService.DeleteWeatherObservation(c.Request().Context(), id)
+		ob, err := weatherService.DeleteWeather(c.Request().Context(), id)
 		if err != nil {
 			if errors.As(err, &repository.ErrNotFound{}) {
 				return c.JSONPretty(
@@ -173,7 +173,7 @@ func DeleteWeatherObservationHandler(weatherService WeatherService) echo.Handler
 				)
 			}
 
-			c.Logger().Errorf("failed to delete observation: %s", err)
+			c.Logger().Errorf("failed to delete: %s", err)
 			return c.JSONPretty(
 				http.StatusInternalServerError,
 				EchoMessage{Msg: "The server is temporarily unavailable, please try again later"},
@@ -185,11 +185,11 @@ func DeleteWeatherObservationHandler(weatherService WeatherService) echo.Handler
 	}
 }
 
-func ListWeatherObservationsHandler(weatherService WeatherService) echo.HandlerFunc {
+func ListWeathersHandler(weatherService WeatherService) echo.HandlerFunc {
 	return func(c echo.Context) error {
-		obs, err := weatherService.ListWeatherObservations(c.Request().Context())
+		obs, err := weatherService.ListWeathers(c.Request().Context())
 		if err != nil {
-			c.Logger().Errorf("failed to get list of observations: %s", err)
+			c.Logger().Errorf("failed to get list of weathers: %s", err)
 			return c.JSONPretty(
 				http.StatusInternalServerError,
 				EchoMessage{Msg: "The server is temporarily unavailable, please try again later"},
