@@ -43,8 +43,10 @@ func RegisterWeatherRoutes(
 	server.GET("/weathers", ListWeathersHandler(weatherService))
 
 	server.Use(middleware.CORSWithConfig(middleware.CORSConfig{
-		AllowOrigins: []string{"http://localhost:3000"}, // Разрешаем запросы с вашего фронтенда
-		AllowMethods: []string{echo.GET, echo.POST, echo.PUT, echo.DELETE},
+		AllowOrigins:                             []string{"http://localhost:3000"},
+		AllowMethods:                             []string{echo.GET, echo.POST, echo.PUT, echo.DELETE},
+		AllowCredentials:                         true,
+		UnsafeWildcardOriginWithAllowCredentials: true,
 	}))
 }
 

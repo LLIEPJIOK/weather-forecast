@@ -11,7 +11,7 @@ WHERE id = $1;
 -- name: UpdateWeather :one
 UPDATE weather
 SET 
-    timestamp = COALESCE(NULLIF($2, ''), timestamp),
+    timestamp = $2,
     temperature = COALESCE(NULLIF($3, 0), temperature),
     humidity = COALESCE(NULLIF($4, 0), humidity),
     pressure = COALESCE(NULLIF($5, 0), pressure),

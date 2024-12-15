@@ -140,7 +140,7 @@ func (q *Queries) ListWeathers(ctx context.Context) ([]Weather, error) {
 const updateWeather = `-- name: UpdateWeather :one
 UPDATE weather
 SET 
-    timestamp = COALESCE(NULLIF($2, ''), timestamp),
+    timestamp = $2,
     temperature = COALESCE(NULLIF($3, 0), temperature),
     humidity = COALESCE(NULLIF($4, 0), humidity),
     pressure = COALESCE(NULLIF($5, 0), pressure),
@@ -153,21 +153,21 @@ RETURNING id, timestamp, city, country, temperature, humidity, pressure, wind_sp
 `
 
 type UpdateWeatherParams struct {
-	ID      int64
-	Column2 interface{}
-	Column3 interface{}
-	Column4 interface{}
-	Column5 interface{}
-	Column6 interface{}
-	Column7 interface{}
-	Column8 interface{}
-	Column9 interface{}
+	ID        int64
+	Timestamp time.Time
+	Column3   interface{}
+	Column4   interface{}
+	Column5   interface{}
+	Column6   interface{}
+	Column7   interface{}
+	Column8   interface{}
+	Column9   interface{}
 }
 
 func (q *Queries) UpdateWeather(ctx context.Context, arg UpdateWeatherParams) (Weather, error) {
 	row := q.db.QueryRowContext(ctx, updateWeather,
 		arg.ID,
-		arg.Column2,
+		arg.Timestamp,
 		arg.Column3,
 		arg.Column4,
 		arg.Column5,

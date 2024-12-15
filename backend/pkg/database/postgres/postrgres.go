@@ -100,15 +100,15 @@ func (db *DB) UpdateWeather(
 	weather *models.Weather,
 ) (*models.Weather, error) {
 	arg := UpdateWeatherParams{
-		ID:      int64(weather.ID),
-		Column2: weather.Timestamp,
-		Column3: weather.Temperature,
-		Column4: weather.Humidity,
-		Column5: weather.Pressure,
-		Column6: weather.WindSpeed,
-		Column7: weather.City,
-		Column8: weather.Country,
-		Column9: weather.WeatherStatus,
+		ID:        int64(weather.ID),
+		Timestamp: weather.Timestamp,
+		Column3:   weather.Temperature,
+		Column4:   weather.Humidity,
+		Column5:   weather.Pressure,
+		Column6:   weather.WindSpeed,
+		Column7:   weather.City,
+		Column8:   weather.Country,
+		Column9:   weather.WeatherStatus,
 	}
 
 	res, err := db.queries.UpdateWeather(ctx, arg)

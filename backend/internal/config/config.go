@@ -14,7 +14,7 @@ type Config struct {
 
 func New() (*Config, error) {
 	cfg := Config{}
-	if err := cleanenv.ReadConfig("./../.env", &cfg); err != nil {
+	if err := cleanenv.ReadConfig("./.env", &cfg); err != nil {
 		return nil, fmt.Errorf("read config: %w", err)
 	}
 

@@ -1,4 +1,5 @@
 import axios from "axios"
+import Cookies from "js-cookie"
 import React, { useEffect, useState } from "react"
 import { useNavigate, useParams } from "react-router-dom"
 import "./UpdateWeather.css"
@@ -17,12 +18,17 @@ const UpdateWeather = () => {
 		weather_status: "",
 	})
 
-	// Fetching existing weather observation data based on ID
 	useEffect(() => {
+		var userRole = Cookies.get("X-User-Role")
+		if (userRole !== "admin") {
+			navigate("/login")
+		}
+
 		axios
-			.get(`http://localhost:8080/weather/${id}`)
+			.get(`http://localhost:8080/weather/${id}`, {
+				withCredentials: true,
+			})
 			.then(response => {
-				// Преобразуем дату в строку в нужном формате
 				const timestamp = response.data.timestamp
 					? new Date(response.data.timestamp).toISOString().split("T")[0]
 					: ""

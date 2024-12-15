@@ -1,19 +1,28 @@
 import axios from "axios"
-import React, { useState } from "react"
+import Cookies from "js-cookie"
+import React, { useEffect, useState } from "react"
+import { useNavigate } from "react-router-dom"
 import AddWeatherForm from "./AddWeatherForm"
-import observationTemplate from "./observationTemplate" // Импорт шаблона
+import observationTemplate from "./observationTemplate"
 
 const AddWeather = () => {
-	const [observation, setObservation] = useState(observationTemplate) // Используем шаблон
+	const [observation, setObservation] = useState(observationTemplate)
+	const navigate = useNavigate()
+
+	useEffect(() => {
+		var userRole = Cookies.get("X-User-Role")
+		if (userRole !== "admin") {
+			navigate("/login")
+		}
+	}, [])
 
 	const handleChange = e => {
 		const { name, value } = e.target
 
-		// Directly update properties if they exist in the observation template
 		if (name in observation) {
 			setObservation({
 				...observation,
-				[name]: value, // Update the corresponding property directly
+				[name]: value,
 			})
 		}
 	}

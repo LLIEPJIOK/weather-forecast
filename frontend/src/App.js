@@ -1,6 +1,7 @@
 import React from "react"
 import { Route, BrowserRouter as Router, Routes } from "react-router-dom"
 import AddWeather from "./components/AddWeather"
+import LoginPage from "./components/Login"
 import Navbar from "./components/Navbar"
 import UpdateWeather from "./components/UpdateWeather"
 import WeatherDetails from "./components/WeatherDetails"
@@ -16,6 +17,7 @@ const App = () => {
 					<Route path="/add" element={<AddWeather />} />
 					<Route path="/details/:id" element={<WeatherDetails />} />
 					<Route path="/update/:id" element={<UpdateWeather />} />
+					<Route path="/login" element={<LoginPage />} />
 				</Routes>
 			</div>
 		</Router>

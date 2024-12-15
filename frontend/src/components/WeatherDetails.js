@@ -1,4 +1,5 @@
 import axios from "axios"
+import Cookies from "js-cookie"
 import React, { useEffect, useState } from "react"
 import { Link, useParams } from "react-router-dom"
 import "./WeatherDetails.css" // Импорт файла стилей
@@ -6,6 +7,8 @@ import "./WeatherDetails.css" // Импорт файла стилей
 const WeatherDetails = () => {
 	const { id } = useParams()
 	const [observation, setObservation] = useState(null)
+
+	var userRole = Cookies.get("X-User-Role")
 
 	useEffect(() => {
 		axios
@@ -48,12 +51,14 @@ const WeatherDetails = () => {
 				</p>
 			</div>
 			<div className="details-actions">
-				<Link to={`/update/${id}`} className="edit-button">
-					Edit Observation
-				</Link>
 				<Link to="/" className="back-button">
 					Back to List
 				</Link>
+				{userRole === "admin" && (
+					<Link to={`/update/${id}`} className="edit-button">
+						Edit Observation
+					</Link>
+				)}
 			</div>
 		</div>
 	)

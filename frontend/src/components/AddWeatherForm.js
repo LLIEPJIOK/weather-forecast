@@ -2,9 +2,8 @@ import React, { useState } from "react"
 import "./AddWeatherForm.css"
 
 const AddWeatherForm = ({ observation, handleChange, handleSubmit }) => {
-	// State for errors and success messages
 	const [errors, setErrors] = useState({})
-	const [message, setMessage] = useState("") // For success or error message
+	const [message, setMessage] = useState("")
 
 	// Validation function
 	const validate = () => {
